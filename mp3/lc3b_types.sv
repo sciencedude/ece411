@@ -39,4 +39,23 @@ typedef enum bit [3:0] {
     alu_sra
 } lc3b_aluop;
 
+
+/* IF_ID register values */
+typedef struct packed
+{
+	lc3b_word intr;
+	lc3b_word pc_out;
+}IF_ID;
+
+/* ID_EX register values */
+typedef struct packed
+{
+	lc3b_word pc_out;
+	lc3b_word srca_out;
+	lc3b_word srcb_out;
+	lc3b_word control_signals;		//subject to change I am just putting width as a place holder
+	lc3b_word intr;
+}ID_EX;
+	
+
 endpackage : lc3b_types
