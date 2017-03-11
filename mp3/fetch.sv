@@ -17,7 +17,7 @@ plus2 add
 	.out(add_out)
 );
 
-register #(16) pc
+register #(.width(16)) pc
 (
 	.clk,
 	.load(1'b1),

@@ -56,6 +56,24 @@ typedef struct packed
 	lc3b_word control_signals;		//subject to change I am just putting width as a place holder
 	lc3b_word intr;
 }ID_EX;
+
+typedef struct packed
+{
+	lc3b_word address;
+	lc3b_word pc_out;
+	lc3b_nzp cc;
+	lc3b_word alu_out;
+	lc3b_word intr;
+}EX_MEM;
+
+typedef struct packed
+{
+	lc3b_word address;
+	lc3b_word mem_data;
+	lc3b_word pc_out;
+	lc3b_word alu_out;
+	lc3b_word intr;
+}MEM_WB;
 	
 
 endpackage : lc3b_types
