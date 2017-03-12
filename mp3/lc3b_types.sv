@@ -53,7 +53,7 @@ typedef struct packed
 	lc3b_word pc_out;
 	lc3b_word srca_out;
 	lc3b_word srcb_out;
-	lc3b_word control_signals;		//subject to change I am just putting width as a place holder
+	CONTROL control_signals;		//subject to change I am just putting width as a place holder
 	lc3b_word intr;
 }ID_EX;
 
@@ -74,6 +74,13 @@ typedef struct packed
 	lc3b_word alu_out;
 	lc3b_word intr;
 }MEM_WB;
+
+typedef struct packed
+{
+	logic srcamux_sel;
+	logic [1:0]srcbmux_sel;
+	lc3b_aluop aluop;
+}CONTROL;
 	
 
 endpackage : lc3b_types
