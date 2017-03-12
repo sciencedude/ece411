@@ -67,6 +67,7 @@ assign ex_mem_in.srcb_out = id_ex_out.srcb_out;
  (
 	.clk,
 	.in(ex_mem_in),
+	.load(1'b1),
 	.out(ex_mem_out)
  );
 

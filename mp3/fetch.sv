@@ -13,13 +13,14 @@ module fetch
 
 lc3b_word add_out;
 lc3b_word pc_in;
+lc3b_word pc_out;
 plus2 add
 (
 	.in(if_id.pc_out),
 	.out(add_out)
 );
 
-mux2
+mux2 pc_mux
 (
 	.sel(branch_enable),
 	.a(add_out),
@@ -32,11 +33,20 @@ register #(.width(16)) pc
 	.clk,
 	.load(1'b1),
 	.in(pc_in),
-	.out(if_id.pc_out)
+	.out(pc_out)
 );
 
-assign if_id.intr = intr;
-assign address = if_id.pc_out;
+register #($bits(IF_ID)) IF_ID_OUT
+(
+	.clk,
+	.load(1'b1),
+	.in({intr,pc_out}),
+	.out(if_id)
+);
+
+
+//assign if_id.intr = intr;
+assign address = pc_out;
 
 endmodule
 	
