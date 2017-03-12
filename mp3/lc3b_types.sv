@@ -59,16 +59,17 @@ typedef struct packed
 
 typedef struct packed
 {
-	lc3b_word address;
+	//lc3b_word address;
 	lc3b_word pc_out;
-	lc3b_nzp cc;
+	//lc3b_nzp cc;
 	lc3b_word alu_out;
+	lc3b_word srcb_out;
 	lc3b_word intr;
 }EX_MEM;
 
 typedef struct packed
 {
-	lc3b_word address;
+	//lc3b_word address;
 	lc3b_word mem_data;
 	lc3b_word pc_out;
 	lc3b_word alu_out;

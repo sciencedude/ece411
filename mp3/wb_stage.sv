@@ -11,21 +11,22 @@ module wb_stage
 );
 
 lc3b_nzp gencc_out;
+lc3b_nzp cc_out;
 
 mux4 cc_mux
 (
-	sel(cc_mux_sel),
-	a(mem_wb.address),
-	b(mem_wb.mem_data),
-	c(mem_wb.pc_out),
-	d(mem_wb.alu_out),
-	f(regfile_in)
+	.sel(cc_mux_sel),
+	.a(mem_wb.alu_out),
+	.b(mem_wb.mem_data),
+	.c(mem_wb.pc_out),
+	.d(16'h0),
+	.f(regfile_in)
 );
 
 gencc gencc1
 (
-	in(regfile_in),
-	out(gencc_out)
+	.in(regfile_in),
+	.out(gencc_out)
 );
 
 register #(.width(3)) cc
