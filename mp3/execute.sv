@@ -61,6 +61,7 @@ alu ALU
 assign ex_mem_in.intr = id_ex_out.intr;
 assign ex_mem_in.pc_out = id_ex_out.pc_out;
 assign ex_mem_in.srcb_out = id_ex_out.srcb_out;
+assign ex_mem_in.control_signals = id_ex_out.control_signals;
 //assign ex_mem_in.address = ex_mem_in.alu_out;
 
  register #(.width($bits(EX_MEM))) ex_mem
