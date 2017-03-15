@@ -2,10 +2,8 @@ import lc3b_types::*;
 
 module wb_stage
 (
-	input clk,
-	input load_cc, 	
+	input clk, 	
 	input MEM_WB mem_wb,
-	input [1:0] cc_mux_sel,
 	output logic branch_enable,
 	output lc3b_word regfile_in
 );
@@ -15,7 +13,7 @@ lc3b_nzp cc_out;
 
 mux4 cc_mux
 (
-	.sel(cc_mux_sel),
+	.sel(mem_wb.control_signals.cc_mux_sel),
 	.a(mem_wb.alu_out),
 	.b(mem_wb.mem_data),
 	.c(mem_wb.pc_out),
@@ -32,7 +30,7 @@ gencc gencc1
 register #(.width(3)) cc
 (
 	.clk,
-	.load(load_cc),
+	.load(mem_wb.control_signals.load_cc),
 	.in(gencc_out),
 	.out(cc_out)
 );

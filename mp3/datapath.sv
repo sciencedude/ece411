@@ -1,39 +1,31 @@
-import lc3b_types::*;
+import lc3b_types ::*;
 
 module datapath
 (
-    input clk,
-
-    /* control signals */
-    input pcmux_sel,
-    input load_pc
-
-    /* declare more ports here */
+	input logic clk,
+	input lc3b_word instruction,
+	input lc3b_word data,
+	output lc3b_word address_i,
+	output lc3b_word address_d,
+	output lc3b_word mem_wdata
 );
 
-/* declare internal signals */
-lc3b_word pcmux_out;
-lc3b_word pc_out;
-lc3b_word br_add_out;
-lc3b_word pc_plus2_out;
+lc3b_word intr;
+lc3b_word alu_out;
+logic branch_enable;
+IF_ID if_id;
+lc3b_word regfile_in;
+ID_EX id_ex1;
+EX_MEM ex_mem_out;
+lc3b_word mem_rdata;
+MEM_WB mem_wb_out;
+MEM_WB mem_wb;
+assign alu_out = ex_mem_out.alu_out;
 
-/*
- * PC
- */
-mux2 pcmux
-(
-    .sel(pcmux_sel),
-    .a(pc_plus2_out),
-    .b(br_add_out),
-    .f(pcmux_out)
-);
+fetch F(.*, .address(address_i), .intr(instruction));
+decode D(.*);
+execute E(.*,.id_ex_out(id_ex1));
+mem_stage M(.*, .ex_mem(ex_mem_out),.address(address_d), .mem_rdata(data));
+wb_stage W(.*, .mem_wb(mem_wb_out));
 
-register pc
-(
-    .clk,
-    .load(load_pc),
-    .in(pcmux_out),
-    .out(pc_out)
-);
-
-endmodule : datapath
+endmodule

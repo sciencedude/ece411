@@ -40,6 +40,18 @@ typedef enum bit [3:0] {
 } lc3b_aluop;
 
 
+typedef struct packed
+{
+	logic srcamux_sel;
+	logic [1:0]srcbmux_sel;
+	lc3b_aluop aluop;
+	logic marmux_sel;
+	logic mdr_mux_sel;
+	logic [1:0] cc_mux_sel;
+	logic load_regfile;
+	logic load_cc;
+}CONTROL;
+
 /* IF_ID register values */
 typedef struct packed
 {
@@ -77,18 +89,6 @@ typedef struct packed
 	lc3b_word intr;
 	CONTROL control_signals;
 }MEM_WB;
-
-typedef struct packed
-{
-	logic srcamux_sel;
-	logic [1:0]srcbmux_sel;
-	lc3b_aluop aluop;
-	logic marmux_sel;
-	logic mdr_mux_sel;
-	logic [1:0] cc_mux_sel;
-	//logic load_regfile;
-	logic load_cc;
-}CONTROL;
 	
 
 endpackage : lc3b_types

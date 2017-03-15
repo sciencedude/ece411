@@ -16,28 +16,26 @@ logic [15:0] mem_wdata;
 initial clk = 0;
 always #5 clk = ~clk;
 
-mp0 dut
+datapath dut
 (
     .clk,
-    .mem_resp,
-    .mem_rdata,
-    .mem_read,
-    .mem_write,
-    .mem_byte_enable,
-    .mem_address,
-    .mem_wdata
+    .instruction(mem_rdata),
+	 .data(16'h0),
+	 .address_i(mem_address),
+	 .address_d(),
+	 .mem_wdata
 );
 
 magic_memory memory
 (
     .clk,
-    .read(mem_read),
-    .write(mem_write),
-    .wmask(mem_byte_enable),
-    .address(mem_address),
-    .wdata(mem_wdata),
-    .resp(mem_resp),
-    .rdata(mem_rdata)
+   .read(1'b1),
+   .write(mem_write),
+   .wmask(mem_byte_enable),
+   .address(mem_address),
+   .wdata(mem_wdata),
+   .resp(mem_resp),
+   .rdata(mem_rdata)
 );
 
 endmodule : mp0_tb
