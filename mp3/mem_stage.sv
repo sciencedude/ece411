@@ -15,15 +15,16 @@ mux2 mar_mux
 (
 	.sel(ex_mem.control_signals.marmux_sel),
 	.a(ex_mem.alu_out),
-	.b(ex_mem.srcb_out),
+	.b(ex_mem.srcb_out), //i have no idea why this is here scp
 	.f(address)
 );
 
-mux2 mdr_mux
+mux4 mdr_mux
 (
 	.sel(ex_mem.control_signals.mdr_mux_sel),
 	.a(ex_mem.alu_out),
 	.b(mem_rdata),
+	.c(ex_mem.srcb_out), //added this because was in paper design scp
 	.f(mem_wdata)
 );
 

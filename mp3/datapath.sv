@@ -21,7 +21,7 @@ EX_MEM ex_mem_out;
 lc3b_word mem_rdata;
 MEM_WB mem_wb_out;
 MEM_WB mem_wb;
-assign alu_out = ex_mem_out.alu_out;
+assign alu_out = mem_wb_out.alu_out;
 
 fetch F(.*, .address(address_i), .intr(instruction));
 decode D(.*);

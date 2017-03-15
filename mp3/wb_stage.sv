@@ -12,6 +12,8 @@ module wb_stage
 
 lc3b_nzp gencc_out;
 lc3b_nzp cc_out;
+logic isbr;
+logic branch_enable_out;
 
 mux4 cc_mux
 (
@@ -37,6 +39,14 @@ register #(.width(3)) cc
 	.out(cc_out)
 );
 
+always_comb
+begin
+	if(mem_wb.intr[15:12] == op_br)
+	isbr = 1'b1;
+	else
+	isbr = 1'b0;
+end
+
 cccomp cccomp1
 (
 	.N(mem_wb.intr[11]),
@@ -45,11 +55,11 @@ cccomp cccomp1
 	.n(cc_out[2]),
 	.z(cc_out[1]),
 	.p(cc_out[0]),
-	.out(branch_enable)
+	.out(branch_enable_out) //this is temp fix other branch still happen even tho not a branch intr
 );
 
 
 assign load_regfile = mem_wb.control_signals.load_regfile;
 assign dest = mem_wb.intr[11:9];
-
+assign branch_enable = branch_enable_out&isbr; //part of temp fix find better soultion scp
 endmodule : wb_stage

@@ -23,7 +23,7 @@ begin
 	if(if_id.intr[15:12] == op_stb | if_id.intr[15:12] == op_sti | if_id.intr[15:12] == op_str)
 	comb_sel = 1'b1;
 	else
-	comb_sel = 1'b1;
+	comb_sel = 1'b0;
 end
 
 mux2#(3) srcb_mux
@@ -55,7 +55,7 @@ begin
 	id_ex.control_signals.srcbmux_sel = 2'b00;
 	id_ex.control_signals.aluop = alu_add;
 	id_ex.control_signals.marmux_sel = 1'b0;	//change it to zero
-	id_ex.control_signals.mdr_mux_sel = 1'b0; //change it to zero
+	id_ex.control_signals.mdr_mux_sel = 2'b00; //change it to zero
 	id_ex.control_signals.cc_mux_sel = 1'b0;
 	id_ex.control_signals.load_regfile = 1'b0; //change it to zero
 	id_ex.control_signals.load_cc = 1'b0;
@@ -63,6 +63,7 @@ begin
 		case(opcode)
 		op_add: begin
 						id_ex.control_signals.load_cc = 1'b1;
+						id_ex.control_signals.load_regfile = 1'b1; 
 						if(if_id.intr[5])
 							id_ex.control_signals.srcbmux_sel = 2'b01;
 		end
@@ -70,6 +71,7 @@ begin
 		op_and: begin
 						id_ex.control_signals.load_cc = 1'b1;
 						id_ex.control_signals.aluop = alu_and;
+						id_ex.control_signals.load_regfile = 1'b1; 
 						if(if_id.intr)
 							id_ex.control_signals.srcbmux_sel = 2'b01;
 		end
@@ -77,6 +79,7 @@ begin
 		op_not: begin
 						id_ex.control_signals.load_cc = 1'b1;
 						id_ex.control_signals.aluop = alu_not;
+						id_ex.control_signals.load_regfile = 1'b1; 
 		end
 		
 		op_ldr: begin
@@ -84,7 +87,7 @@ begin
 						id_ex.control_signals.aluop = alu_add;
 						id_ex.control_signals.srcamux_sel = 1'b0;
 						id_ex.control_signals.srcbmux_sel = 2'b10;
-						id_ex.control_signals.mdr_mux_sel = 1'b1;
+						id_ex.control_signals.mdr_mux_sel = 2'b01;
 						id_ex.control_signals.load_regfile = 1'b1;
 						id_ex.control_signals.cc_mux_sel = 2'b01;
 					end
@@ -93,14 +96,13 @@ begin
 						id_ex.control_signals.aluop = alu_add;
 						id_ex.control_signals.srcamux_sel = 1'b0;
 						id_ex.control_signals.srcbmux_sel = 2'b10;
+						id_ex.control_signals.mdr_mux_sel = 2'b10; //add this so mdr has sr register to write to scp
 					end
 					
 		op_br: begin
-						if(branch_enable)	begin
 						id_ex.control_signals.aluop = alu_add;
 						id_ex.control_signals.srcamux_sel = 1'b1;
-						id_ex.control_signals.srcbmux_sel = 2'b11;
-						end
+						id_ex.control_signals.srcbmux_sel = 2'b11; //this need to calculate
 		end
 	endcase
 				

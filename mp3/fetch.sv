@@ -16,7 +16,7 @@ lc3b_word pc_in;
 lc3b_word pc_out;
 plus2 add
 (
-	.in(if_id.pc_out),
+	.in(pc_out), //program would branch only for one intr the countie like it didn't branch changed to pc_out scp
 	.out(add_out)
 );
 
