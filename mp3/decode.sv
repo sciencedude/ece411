@@ -6,13 +6,14 @@ module decode
 	input clk,
 	input lc3b_word regfile_in,
 	input logic branch_enable,
+	input logic load_regfile,
+	input lc3b_reg dest,
 	output ID_EX id_ex1
 );
 
 logic comb_sel;
 lc3b_reg src_a;
 lc3b_reg src_b;
-lc3b_reg dest;
 logic [3:0] opcode;
 ID_EX id_ex;
 assign opcode = if_id.intr[15:12];
@@ -34,7 +35,6 @@ mux2#(3) srcb_mux
 );
 
 assign src_a = if_id.intr[8:6];
-assign dest = if_id.intr[11:9];
 
 regfile REGFILE
 (
@@ -85,6 +85,8 @@ begin
 						id_ex.control_signals.srcamux_sel = 1'b0;
 						id_ex.control_signals.srcbmux_sel = 2'b10;
 						id_ex.control_signals.mdr_mux_sel = 1'b1;
+						id_ex.control_signals.load_regfile = 1'b1;
+						id_ex.control_signals.cc_mux_sel = 2'b01;
 					end
 					
 		op_str: begin

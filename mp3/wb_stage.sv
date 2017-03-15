@@ -5,6 +5,8 @@ module wb_stage
 	input clk, 	
 	input MEM_WB mem_wb,
 	output logic branch_enable,
+	output lc3b_reg dest,
+	output logic load_regfile,
 	output lc3b_word regfile_in
 );
 
@@ -45,5 +47,9 @@ cccomp cccomp1
 	.p(cc_out[0]),
 	.out(branch_enable)
 );
+
+
+assign load_regfile = mem_wb.control_signals.load_regfile;
+assign dest = mem_wb.intr[11:9];
 
 endmodule : wb_stage

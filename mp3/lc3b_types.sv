@@ -62,32 +62,32 @@ typedef struct packed
 /* ID_EX register values */
 typedef struct packed
 {
+	CONTROL control_signals;		//subject to change I am just putting width as a place holder
 	lc3b_word pc_out;
 	lc3b_word srca_out;
 	lc3b_word srcb_out;
-	CONTROL control_signals;		//subject to change I am just putting width as a place holder
 	lc3b_word intr;
 }ID_EX;
 
 typedef struct packed
 {
 	//lc3b_word address;
+	CONTROL control_signals;
 	lc3b_word pc_out;
 	//lc3b_nzp cc;
 	lc3b_word alu_out;
 	lc3b_word srcb_out;
 	lc3b_word intr;
-	CONTROL control_signals;
 }EX_MEM;
 
 typedef struct packed
 {
 	//lc3b_word address;
+	CONTROL control_signals;
 	lc3b_word mem_data;
 	lc3b_word pc_out;
 	lc3b_word alu_out;
 	lc3b_word intr;
-	CONTROL control_signals;
 }MEM_WB;
 	
 

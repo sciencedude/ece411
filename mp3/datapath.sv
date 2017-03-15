@@ -12,7 +12,8 @@ module datapath
 
 lc3b_word intr;
 lc3b_word alu_out;
-logic branch_enable;
+logic branch_enable, load_regfile;
+lc3b_reg dest;
 IF_ID if_id;
 lc3b_word regfile_in;
 ID_EX id_ex1;

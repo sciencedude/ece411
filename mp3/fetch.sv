@@ -40,7 +40,7 @@ register #($bits(IF_ID)) IF_ID_OUT
 (
 	.clk,
 	.load(1'b1),
-	.in({intr,pc_out}),
+	.in({intr,add_out}),
 	.out(if_id)
 );
 
