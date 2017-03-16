@@ -42,6 +42,7 @@ typedef enum bit [3:0] {
 
 typedef struct packed
 {
+	logic mem_write;
 	logic srcamux_sel;
 	logic [1:0]srcbmux_sel;
 	lc3b_aluop aluop;

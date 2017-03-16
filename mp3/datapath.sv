@@ -7,6 +7,7 @@ module datapath
 	input lc3b_word data,
 	output lc3b_word address_i,
 	output lc3b_word address_d,
+	output logic mem_write,
 	output lc3b_word mem_wdata
 );
 

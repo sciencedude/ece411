@@ -59,6 +59,7 @@ begin
 	id_ex.control_signals.cc_mux_sel = 1'b0;
 	id_ex.control_signals.load_regfile = 1'b0; //change it to zero
 	id_ex.control_signals.load_cc = 1'b0;
+	id_ex.control_signals.mem_write = 1'b0;
 		
 		case(opcode)
 		op_add: begin
@@ -97,6 +98,7 @@ begin
 						id_ex.control_signals.srcamux_sel = 1'b0;
 						id_ex.control_signals.srcbmux_sel = 2'b10;
 						id_ex.control_signals.mdr_mux_sel = 2'b10; //add this so mdr has sr register to write to scp
+						id_ex.control_signals.mem_write = 1'b1;
 					end
 					
 		op_br: begin

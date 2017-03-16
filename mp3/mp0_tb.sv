@@ -24,6 +24,7 @@ datapath dut
 	 .data,
 	 .address_i(mem_address),
 	 .address_d,
+	 .mem_write,
 	 .mem_wdata
 );
 
@@ -34,7 +35,7 @@ magic_memory memory
    .write(mem_write),
    .wmask(mem_byte_enable),
    .address(mem_address),
-   .wdata(mem_wdata),
+   .wdata(),
    .resp(mem_resp),
    .rdata(mem_rdata)
 );
@@ -43,10 +44,10 @@ magic_memory memory2
 (
     .clk,
    .read(1'b1),
-   .write(1'b0),
-   .wmask(2'b0),
+   .write(mem_write),
+   .wmask(2'b11),
    .address(address_d),
-   .wdata(16'h0),
+   .wdata(mem_wdata),
    .resp(),
    .rdata(data)
 );

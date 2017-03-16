@@ -6,6 +6,7 @@ module mem_stage
 	input EX_MEM ex_mem,
 	input lc3b_word mem_rdata,
 	output MEM_WB mem_wb_out,
+	output mem_write,
 	output lc3b_word mem_wdata, address
 );
 
@@ -25,6 +26,7 @@ mux4 mdr_mux
 	.a(ex_mem.alu_out),
 	.b(mem_rdata),
 	.c(ex_mem.srcb_out), //added this because was in paper design scp
+	.d(16'h0),
 	.f(mem_wdata)
 );
 
@@ -34,6 +36,7 @@ assign mem_wb_in.pc_out = ex_mem.pc_out;
 assign mem_wb_in.alu_out = ex_mem.alu_out;
 assign mem_wb_in.intr = ex_mem.intr;
 assign mem_wb_in.control_signals = ex_mem.control_signals;
+assign mem_write = ex_mem.control_signals.mem_write;
 
 register #(.width($bits(MEM_WB))) mem_wb
  (
