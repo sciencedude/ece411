@@ -4,6 +4,7 @@ module execute
 (
 	input clk,
 	input ID_EX id_ex_out,
+	input stall,
 	output EX_MEM ex_mem_out
 );
 
@@ -68,7 +69,7 @@ assign ex_mem_in.control_signals = id_ex_out.control_signals;
  (
 	.clk,
 	.in(ex_mem_in),
-	.load(1'b1),
+	.load(stall),
 	.out(ex_mem_out)
  );
 

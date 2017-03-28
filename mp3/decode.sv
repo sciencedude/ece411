@@ -5,6 +5,7 @@ module decode
 	input IF_ID if_id,
 	input clk,
 	input lc3b_word regfile_in,
+	input logic stall,
 	input logic branch_enable,
 	input logic load_regfile,
 	input lc3b_reg dest,
@@ -60,7 +61,7 @@ begin
 	id_ex.control_signals.load_regfile = 1'b0; //change it to zero
 	id_ex.control_signals.load_cc = 1'b0;
 	id_ex.control_signals.mem_write = 1'b0;
-		
+	id_ex.control_signals.mem_read_d = 1'b0;	
 		case(opcode)
 		op_add: begin
 						id_ex.control_signals.load_cc = 1'b1;
@@ -91,6 +92,7 @@ begin
 						id_ex.control_signals.mdr_mux_sel = 2'b01;
 						id_ex.control_signals.load_regfile = 1'b1;
 						id_ex.control_signals.cc_mux_sel = 2'b01;
+						id_ex.control_signals.mem_read_d = 1'b1;
 					end
 					
 		op_str: begin
@@ -99,6 +101,7 @@ begin
 						id_ex.control_signals.srcbmux_sel = 2'b10;
 						id_ex.control_signals.mdr_mux_sel = 2'b10; //add this so mdr has sr register to write to scp
 						id_ex.control_signals.mem_write = 1'b1;
+						id_ex.control_signals.mem_read_d = 1'b1;
 					end
 					
 		op_br: begin
@@ -119,7 +122,7 @@ register#($bits(id_ex)) id_Ex
 	.clk,
 	.in(id_ex),
 	.out(id_ex1),
-	.load(1'b1)
+	.load(stall)
 );
 
 endmodule

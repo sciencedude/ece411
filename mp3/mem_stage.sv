@@ -5,8 +5,11 @@ module mem_stage
 	input clk,
 	input EX_MEM ex_mem,
 	input lc3b_word mem_rdata,
+	input mem_resp_d,
 	output MEM_WB mem_wb_out,
 	output mem_write,
+	output mem_read_d,
+	output logic stall,
 	output lc3b_word mem_wdata, address
 );
 
@@ -37,13 +40,23 @@ assign mem_wb_in.alu_out = ex_mem.alu_out;
 assign mem_wb_in.intr = ex_mem.intr;
 assign mem_wb_in.control_signals = ex_mem.control_signals;
 assign mem_write = ex_mem.control_signals.mem_write;
+assign mem_read_d = ex_mem.control_signals.mem_read_d;
+
+//stall = 1 means don't stall
+always_comb
+begin
+	if(mem_read_d)
+	stall = mem_resp_d;
+	else
+	stall = 1'b1;
+end
 
 register #(.width($bits(MEM_WB))) mem_wb
  (
 	.clk,
 	.in(mem_wb_in),
 	.out(mem_wb_out),
-	.load(1'b1)
+	.load(mem_resp_d)
  );
 
 endmodule : mem_stage

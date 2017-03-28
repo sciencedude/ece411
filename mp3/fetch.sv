@@ -5,6 +5,8 @@ module fetch
 	input lc3b_word intr,
 	input logic clk,
 	input lc3b_word alu_out,
+	input mem_resp_i,
+	input stall,
 	input branch_enable,
 	output lc3b_word address,
 	output IF_ID if_id
@@ -31,7 +33,7 @@ mux2 pc_mux
 register #(.width(16)) pc
 (
 	.clk,
-	.load(1'b1),
+	.load(mem_resp_i && stall),
 	.in(pc_in),
 	.out(pc_out)
 );
@@ -39,7 +41,7 @@ register #(.width(16)) pc
 register #($bits(IF_ID)) IF_ID_OUT
 (
 	.clk,
-	.load(1'b1),
+	.load(mem_resp_i && stall),
 	.in({intr,pc_in}),
 	.out(if_id)
 );
