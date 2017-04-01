@@ -52,7 +52,6 @@ typedef struct packed
 	logic [1:0] cc_mux_sel;
 	logic load_regfile;
 	logic load_cc;
-	lc3b_mem_wmask mem_byte_mask; //for stb and ldb intr
 }CONTROL;
 
 /* IF_ID register values */
