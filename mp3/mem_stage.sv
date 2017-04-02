@@ -6,12 +6,16 @@ module mem_stage
 	input EX_MEM ex_mem,
 	input lc3b_word mem_rdata,
 	input mem_resp_d,
+	input logic mem_resp_i,
 	output MEM_WB mem_wb_out,
 	output mem_write,
 	output mem_read_d,
-	output logic stall,
+	input stall,
 	output lc3b_word mem_wdata, address,
-	output lc3b_mem_wmask wmask
+	output lc3b_mem_wmask wmask,
+	output logic isI,
+	output logic state,
+	output logic mem_intr
 );
 
 lc3b_word marimux_out;
@@ -22,7 +26,6 @@ logic read;
 logic write;
 logic rwmux_sel;
 logic marmux_sel;
-logic state;
 logic loadPtr;
 logic loadst;
 logic stin;
@@ -136,16 +139,17 @@ assign mem_wb_in.pc_out = ex_mem.pc_out;
 assign mem_wb_in.alu_out = ex_mem.alu_out;
 assign mem_wb_in.intr = ex_mem.intr;
 assign mem_wb_in.control_signals = ex_mem.control_signals;
-
+assign isI = ex_mem.control_signals.isI;
+assign mem_intr = ex_mem.control_signals.mem_intr;
 //stall = 1 means don't stall
-always_comb
+/*always_comb
 begin
 	if((ex_mem.control_signals.isI == 1 && state == 0) || mem_read_d== 1 || mem_write == 1) //add write to case 
 	stall = mem_resp_d;
 	else
 	stall = 1'b1;
 end
-
+*/
 register #(.width($bits(MEM_WB))) mem_wb
  (
 	.clk,

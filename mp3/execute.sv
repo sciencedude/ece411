@@ -5,6 +5,7 @@ module execute
 	input clk,
 	input ID_EX id_ex_out,
 	input stall,
+	input mem_resp_i,
 	output EX_MEM ex_mem_out
 );
 

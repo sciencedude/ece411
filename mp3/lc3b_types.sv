@@ -53,6 +53,7 @@ typedef struct packed
 	logic load_regfile;
 	logic load_cc;
 	logic isI;
+	logic mem_intr;
 }CONTROL;
 
 /* IF_ID register values */

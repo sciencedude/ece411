@@ -4,6 +4,7 @@ module decode
 (
 	input IF_ID if_id,
 	input clk,
+	input mem_resp_i,
 	input lc3b_word regfile_in,
 	input logic stall,
 	input logic branch_enable,
@@ -83,6 +84,7 @@ begin
 	id_ex.control_signals.mem_write = 1'b0;
 	id_ex.control_signals.mem_read_d = 1'b0;
 	id_ex.control_signals.isI = 1'b0;
+	id_ex.control_signals.mem_intr = 1'b0;
 	pcmux_sel = 2'b00;
 
 		case(opcode)
@@ -116,6 +118,7 @@ begin
 						id_ex.control_signals.load_regfile = 1'b1;
 						id_ex.control_signals.cc_mux_sel = 2'b01;
 						id_ex.control_signals.mem_read_d = 1'b1;
+						id_ex.control_signals.mem_intr = 1'b1;
 					end
 					
 		op_str: begin
@@ -124,6 +127,7 @@ begin
 						id_ex.control_signals.srcbmux_sel = 3'b010;
 						id_ex.control_signals.mdr_mux_sel = 3'b010; //add this so mdr has sr register to write to scp
 						id_ex.control_signals.mem_write = 1'b1;
+						id_ex.control_signals.mem_intr = 1'b1;
 						//id_ex.control_signals.mem_read_d = 1'b1; dont't want to read and write just write
 					end
 					
@@ -145,6 +149,7 @@ begin
 						id_ex.control_signals.srcbmux_sel = 3'b011; //SEXT(offset6)] with no left shift
 						id_ex.control_signals.mdr_mux_sel = 3'b011; //add this so mdr has sr register to write to scp
 						id_ex.control_signals.mem_write = 1'b1;
+						id_ex.control_signals.mem_intr = 1'b1;
 		end
 	    op_ldb :begin	       
 						id_ex.control_signals.load_cc = 1'b1;
@@ -154,7 +159,8 @@ begin
 						id_ex.control_signals.mdr_mux_sel = 3'b100;
 						id_ex.control_signals.load_regfile = 1'b1;
 						id_ex.control_signals.cc_mux_sel = 2'b01;
-						id_ex.control_signals.mem_read_d = 1'b1;	    
+						id_ex.control_signals.mem_read_d = 1'b1;
+						id_ex.control_signals.mem_intr = 1'b1;					
 	    end
 		op_sti : begin
 						id_ex.control_signals.aluop = alu_add;
@@ -163,6 +169,7 @@ begin
 						id_ex.control_signals.mdr_mux_sel = 3'b010; //add this so mdr has sr register to write to scp
 						id_ex.control_signals.mem_write = 1'b1;
 						id_ex.control_signals.isI = 1'b1;
+						id_ex.control_signals.mem_intr = 1'b1;
 		end
 	    op_ldi : begin	       
 						id_ex.control_signals.load_cc = 1'b1;
@@ -174,6 +181,7 @@ begin
 						id_ex.control_signals.cc_mux_sel = 2'b01;
 						id_ex.control_signals.mem_read_d = 1'b1;	
 						id_ex.control_signals.isI = 1'b1;
+						id_ex.control_signals.mem_intr = 1'b1;
 	    end
 		 op_jmp : begin
 						id_ex.control_signals.aluop = alu_pass;
@@ -216,6 +224,7 @@ begin
 						id_ex.control_signals.mem_read_d = 1'b1;
 						id_ex.control_signals.mdr_mux_sel = 3'b001;
 						pcmux_sel = 2'b10;
+						id_ex.control_signals.mem_intr = 1'b1;
 		 end
 	endcase
 				

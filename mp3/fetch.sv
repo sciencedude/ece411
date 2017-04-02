@@ -47,7 +47,7 @@ mux4 pc_mux
 register #(.width(16)) pc
 (
 	.clk,
-	.load(mem_resp_i && stall),
+	.load(stall),
 	.in(pc_in),
 	.out(pc_out)
 );
@@ -55,7 +55,7 @@ register #(.width(16)) pc
 register #($bits(IF_ID)) IF_ID_OUT
 (
 	.clk,
-	.load(mem_resp_i && stall),
+	.load(stall),
 	.in({intr,pc_in}),
 	.out(if_id)
 );

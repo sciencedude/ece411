@@ -45,12 +45,26 @@ lc3b_word mem_address_i;
 logic [127:0] pmem_rdata_d;
 logic mem_read_i;
 logic [1:0] pcmux_sel;
+logic state;
+logic isI;
+logic mem_intr;
 //intialize all the stages in pipeline
 fetch F(.*, .address(address_i), .intr(instruction));
 decode D(.*);
 execute E(.*,.id_ex_out(id_ex1));
 mem_stage M(.*, .ex_mem(ex_mem_out),.address(address_d), .mem_rdata(data));
 wb_stage W(.*, .mem_wb(mem_wb_out));
+
+stall_logic sl
+(
+	.mem_resp_i,
+	.mem_resp_d,
+	.stall,
+	.state,
+	.isI,
+	.mem_intr
+);
+
 
 cache I_cache
 (
