@@ -17,6 +17,7 @@ module mem_stage
 lc3b_word marimux_out;
 lc3b_word byteread_out;
 lc3b_word ptr_out;
+lc3b_word trapvector_out;
 logic read;
 logic write;
 logic rwmux_sel;
@@ -29,12 +30,20 @@ logic stin;
 
 MEM_WB mem_wb_in;
 //not sure if this mux is needed remember to bring this up
-mux2 mar_mux
+mux4 mar_mux
 (
 	.sel(ex_mem.control_signals.marmux_sel),
 	.a(marimux_out),
 	.b(ex_mem.srcb_out), //i have no idea why this is here scp
+	.c(trapvector_out),
+	.d(),
 	.f(address)
+);
+
+zext_shift trapvector
+(
+	.in(ex_mem.intr[7:0]),
+	.out(trapvector_out)
 );
 
 poniter ptr
@@ -108,6 +117,9 @@ mux8 mdr_mux
 	.c(ex_mem.srcb_out), //added this because was in paper design scp
 	.d({ex_mem.srcb_out[7:0],ex_mem.srcb_out[7:0]}),
 	.e(byteread_out),
+	.f(),
+	.g(),
+	.h(),
 	.out(mem_wdata)
 );
 //this mask the bye mask for the L1 data cache

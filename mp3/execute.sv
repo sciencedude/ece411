@@ -11,16 +11,24 @@ module execute
 EX_MEM ex_mem_in;
 lc3b_word srcamux_out;
 lc3b_word srcbmux_out;
+lc3b_word imm4_out;
 lc3b_word imm5_out;
 lc3b_word adj6_out;
 lc3b_word adj9_out;
 lc3b_word sext_6;
+lc3b_word adj11_out;
 mux2 srcamux
 (
 	.sel(id_ex_out.control_signals.srcamux_sel),
 	.a(id_ex_out.srca_out),
 	.b(id_ex_out.pc_out),
 	.f(srcamux_out)
+);
+
+zext #(.width(4)) imm4
+(
+	.in(id_ex_out.intr[3:0]),
+	.out(imm4_out)
 );
 
 sext#(.width(5)) imm5
@@ -47,7 +55,13 @@ sext#(.width(6)) sext6 //for stb and ldb they use change this with right mux ent
 	.out(sext_6)
 );
 
-mux8 #(16) srcbmux
+adj #(.width(11)) adj11
+(
+	.in(id_ex_out.intr[10:0]),
+	.out(adj11_out)
+);
+
+mux8 srcbmux
 (
 	.sel(id_ex_out.control_signals.srcbmux_sel),
 	.a(id_ex_out.srcb_out),
@@ -55,6 +69,9 @@ mux8 #(16) srcbmux
 	.c(adj6_out),
 	.d(adj9_out),
 	.e(sext_6),
+	.f(imm4_out),
+	.g(adj11_out),
+	.h(),
 	.out(srcbmux_out)
 );
 

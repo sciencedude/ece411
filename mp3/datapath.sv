@@ -44,6 +44,7 @@ lc3b_mem_wmask wmask;
 lc3b_word mem_address_i;
 logic [127:0] pmem_rdata_d;
 logic mem_read_i;
+logic [1:0] pcmux_sel;
 //intialize all the stages in pipeline
 fetch F(.*, .address(address_i), .intr(instruction));
 decode D(.*);

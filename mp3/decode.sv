@@ -9,7 +9,8 @@ module decode
 	input logic branch_enable,
 	input logic load_regfile,
 	input lc3b_reg dest,
-	output ID_EX id_ex1
+	output ID_EX id_ex1,
+	output logic [1:0] pcmux_sel
 );
 
 logic comb_sel;
@@ -17,6 +18,9 @@ lc3b_reg src_a;
 lc3b_reg src_b;
 logic [3:0] opcode;
 ID_EX id_ex;
+logic destmux_sel;
+logic [2:0] destmux_out;
+
 assign opcode = if_id.intr[15:12];
 
 always_comb
@@ -37,6 +41,22 @@ mux2#(3) srcb_mux
 
 assign src_a = if_id.intr[8:6];
 
+always_comb
+begin
+	if(if_id.intr[15:12] == op_jsr || if_id.intr[15:12] == op_trap)
+		destmux_sel = 1'b1;
+	else	
+		destmux_sel = 1'b0;
+end
+
+mux2 #(.width(3)) destmux
+(
+	.sel(destmux_sel),
+	.a(dest),
+	.b(3'b111),
+	.f(destmux_out)
+);
+
 regfile REGFILE
 (
 	.clk,
@@ -44,7 +64,7 @@ regfile REGFILE
 	.in(regfile_in),
 	.src_a,
 	.src_b,
-	.dest,
+	.dest(destmux_out),
 	.reg_a(id_ex.srca_out),
 	.reg_b(id_ex.srcb_out)
 );
@@ -55,7 +75,7 @@ begin
 	id_ex.control_signals.srcamux_sel = 1'b0;
 	id_ex.control_signals.srcbmux_sel = 3'b000;
 	id_ex.control_signals.aluop = alu_add;
-	id_ex.control_signals.marmux_sel = 1'b0;	//change it to zero
+	id_ex.control_signals.marmux_sel = 2'b00;	//change it to zero
 	id_ex.control_signals.mdr_mux_sel = 3'b000; //change it to zero
 	id_ex.control_signals.cc_mux_sel = 1'b0;
 	id_ex.control_signals.load_regfile = 1'b0; //change it to zero
@@ -63,6 +83,8 @@ begin
 	id_ex.control_signals.mem_write = 1'b0;
 	id_ex.control_signals.mem_read_d = 1'b0;
 	id_ex.control_signals.isI = 1'b0;
+	pcmux_sel = 2'b00;
+
 		case(opcode)
 		op_add: begin
 						id_ex.control_signals.load_cc = 1'b1;
@@ -111,7 +133,7 @@ begin
 						id_ex.control_signals.srcbmux_sel = 3'b011; //this need to calculate
 		end
 		op_lea: begin
-		                id_ex.control_signals.aluop = alu_add;
+		            id_ex.control_signals.aluop = alu_add;
 						id_ex.control_signals.srcamux_sel = 1'b1;
 						id_ex.control_signals.srcbmux_sel = 3'b011;
 						id_ex.control_signals.load_cc = 1'b1;
@@ -120,7 +142,7 @@ begin
 		op_stb : begin
 						id_ex.control_signals.aluop = alu_add;
 						id_ex.control_signals.srcamux_sel = 1'b0;
-						id_ex.control_signals.srcbmux_sel = 2'b011; //SEXT(offset6)] with no left shift
+						id_ex.control_signals.srcbmux_sel = 3'b011; //SEXT(offset6)] with no left shift
 						id_ex.control_signals.mdr_mux_sel = 3'b011; //add this so mdr has sr register to write to scp
 						id_ex.control_signals.mem_write = 1'b1;
 		end
@@ -137,22 +159,64 @@ begin
 		op_sti : begin
 						id_ex.control_signals.aluop = alu_add;
 						id_ex.control_signals.srcamux_sel = 1'b0;
-						id_ex.control_signals.srcbmux_sel = 2'b10; 
+						id_ex.control_signals.srcbmux_sel = 3'b010; 
 						id_ex.control_signals.mdr_mux_sel = 3'b010; //add this so mdr has sr register to write to scp
 						id_ex.control_signals.mem_write = 1'b1;
 						id_ex.control_signals.isI = 1'b1;
 		end
-	    op_ldi :begin       
+	    op_ldi : begin	       
 						id_ex.control_signals.load_cc = 1'b1;
 						id_ex.control_signals.aluop = alu_add;
 						id_ex.control_signals.srcamux_sel = 1'b0;
-						id_ex.control_signals.srcbmux_sel = 2'b10;
+						id_ex.control_signals.srcbmux_sel = 3'b010;
 						id_ex.control_signals.mdr_mux_sel = 3'b001;
 						id_ex.control_signals.load_regfile = 1'b1;
 						id_ex.control_signals.cc_mux_sel = 2'b01;
-						id_ex.control_signals.mem_read_d = 1'b1;	  
+						id_ex.control_signals.mem_read_d = 1'b1;	
 						id_ex.control_signals.isI = 1'b1;
-	    end	    
+	    end
+		 op_jmp : begin
+						id_ex.control_signals.aluop = alu_pass;
+						pcmux_sel = 2'b01;
+		 end
+		 op_jsr : begin
+						id_ex.control_signals.cc_mux_sel = 2'b10;
+						id_ex.control_signals.load_regfile = 1'b1;
+						if(if_id.intr[11])
+						begin
+							id_ex.control_signals.srcamux_sel = 1'b1;
+							id_ex.control_signals.srcbmux_sel = 3'b110;
+							id_ex.control_signals.aluop = alu_add;
+							pcmux_sel = 2'b01;
+						end
+						else
+						begin
+							id_ex.control_signals.aluop = alu_pass;
+							pcmux_sel = 2'b01;
+						end
+		 end
+		 op_shf : begin
+						id_ex.control_signals.srcbmux_sel = 3'b101;
+						if(if_id.intr[4])
+						begin
+							if(if_id.intr[5])
+								id_ex.control_signals.aluop = alu_sra;
+							else
+								id_ex.control_signals.aluop = alu_srl;
+						end
+						else
+							id_ex.control_signals.aluop = alu_sll;
+						id_ex.control_signals.load_regfile = 1'b1;
+						id_ex.control_signals.load_cc = 1'b1;
+		 end
+		 op_trap : begin 
+						id_ex.control_signals.cc_mux_sel = 2'b10;
+						id_ex.control_signals.load_regfile = 1'b1;
+						id_ex.control_signals.marmux_sel = 2'b10;
+						id_ex.control_signals.mem_read_d = 1'b1;
+						id_ex.control_signals.mdr_mux_sel = 3'b001;
+						pcmux_sel = 2'b10;
+		 end
 	endcase
 				
 						
