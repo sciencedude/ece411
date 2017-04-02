@@ -17,10 +17,11 @@ module cache
 	output logic pmem_read,
 	output logic pmem_write,
 	output logic [127:0] pmem_wdata,
-	output logic [15:0] pmem_address
+	output logic [15:0] pmem_address,
+	output logic found
 );
 
-logic LRU_write,tag_write,valid_write,data_write,datamux_sel,MSBmux_sel,LSBmux_sel,dirty_write_val,dirty_write,found,dirty, cout_1, cout_2, addrmux_sel;
+logic LRU_write,tag_write,valid_write,data_write,datamux_sel,MSBmux_sel,LSBmux_sel,dirty_write_val,dirty_write,dirty, cout_1, cout_2, addrmux_sel;
 logic [8:0] tag;
 logic [2:0] set;
 logic [2:0] offset;

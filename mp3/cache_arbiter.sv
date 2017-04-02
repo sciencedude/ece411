@@ -9,6 +9,7 @@ module cache_arbiter
 	input logic pmem_write_i,
 	input logic mem_resp,
 	input logic pmem_resp,
+	input logic found,
 	
 	output logic pmem_read,
 	output logic pmem_write,
@@ -29,7 +30,7 @@ always_comb
 begin
 	next_state = state;
 	case(state)
-	lock : if(pmem_resp)
+	lock : if(pmem_resp | found)
 				next_state = unlock;
 	unlock : if(pmem_read_i|pmem_write_i|pmem_read_d|pmem_write_d)
 					next_state = lock;

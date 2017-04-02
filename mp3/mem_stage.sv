@@ -108,7 +108,7 @@ mux8 mdr_mux
 	.c(ex_mem.srcb_out), //added this because was in paper design scp
 	.d({ex_mem.srcb_out[7:0],ex_mem.srcb_out[7:0]}),
 	.e(byteread_out),
-	.f(mem_wdata)
+	.out(mem_wdata)
 );
 //this mask the bye mask for the L1 data cache
 mem_mask_gen Mem_Mask_gen

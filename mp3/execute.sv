@@ -47,7 +47,7 @@ sext#(.width(6)) sext6 //for stb and ldb they use change this with right mux ent
 	.out(sext_6)
 );
 
-mux8 srcbmux
+mux8 #(16) srcbmux
 (
 	.sel(id_ex_out.control_signals.srcbmux_sel),
 	.a(id_ex_out.srcb_out),
@@ -55,7 +55,7 @@ mux8 srcbmux
 	.c(adj6_out),
 	.d(adj9_out),
 	.e(sext_6),
-	.f(srcbmux_out)
+	.out(srcbmux_out)
 );
 
 alu ALU

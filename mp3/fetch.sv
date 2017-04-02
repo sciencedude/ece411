@@ -9,6 +9,7 @@ module fetch
 	input stall,
 	input branch_enable,
 	output lc3b_word address,
+	output logic mem_read_i,
 	output IF_ID if_id
 );
 
@@ -46,7 +47,7 @@ register #($bits(IF_ID)) IF_ID_OUT
 	.out(if_id)
 );
 
-
+assign mem_read_i = stall;
 //assign if_id.intr = intr;
 assign address = pc_out;
 

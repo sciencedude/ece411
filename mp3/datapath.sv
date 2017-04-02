@@ -39,7 +39,11 @@ assign alu_out = mem_wb_out.alu_out;
 logic I_D_out;
 logic pmem_resp_i, pmem_resp_d;
 logic stall;
+logic found_i, found_d, found;
 lc3b_mem_wmask wmask;
+lc3b_word mem_address_i;
+logic [127:0] pmem_rdata_d;
+logic mem_read_i;
 //intialize all the stages in pipeline
 fetch F(.*, .address(address_i), .intr(instruction));
 decode D(.*);
@@ -50,9 +54,9 @@ wb_stage W(.*, .mem_wb(mem_wb_out));
 cache I_cache
 (
 	.clk,
-	.mem_address(address_i),
+	.mem_address(mem_address_i),
 	.mem_wdata,
-	.mem_read(1'b1),
+	.mem_read(mem_read_i),
 	.mem_write,
 	.mem_byte_enable(2'b11),
 	.pmem_resp(pmem_resp_i),
@@ -62,7 +66,8 @@ cache I_cache
 	.pmem_read(pmem_readi),
 	.pmem_write(pmem_writei),
 	.pmem_wdata(pmem_wdatai),
-	.pmem_address(pmem_addressi)
+	.pmem_address(pmem_addressi),
+	.found(found_i)
 );
 
 
@@ -74,14 +79,31 @@ cache D_cache
 	.mem_read(mem_read_d),
 	.mem_write,
 	.mem_byte_enable(wmask),
-	.pmem_resp(pmem_resp_d),
-	.pmem_rdata,
+	.pmem_resp(pmem_resp_d | found),
+	.pmem_rdata(pmem_rdata_d),
 	.mem_resp(mem_resp_d),
 	.mem_rdata(data),
 	.pmem_read(pmem_readd),
 	.pmem_write(pmem_writed),
 	.pmem_wdata(pmem_wdatad),
-	.pmem_address(pmem_addressd)
+	.pmem_address(pmem_addressd),
+	.found(found_d)
+);
+
+mux2# (128) get_from_i
+(
+	.sel(found),
+	.a(pmem_rdata),
+	.b(pmem_wdatai),
+	.f(pmem_rdata_d)
+);
+
+mux2#(1) hit
+(
+	.sel(~I_D_out),
+	.a(found_i),
+	.b(found_d),
+	.f(found)
 );
 
 mux2 #(1) RESP
@@ -98,6 +120,14 @@ mux2 #(16) address_mux
 	.a(pmem_addressi),
 	.b(pmem_addressd),
 	.f(pmem_address)
+);
+
+mux2 #(16) address_i_mux
+(
+	.sel(I_D_out),
+	.a(address_i),
+	.b(pmem_addressd),
+	.f(mem_address_i)
 );
 
 mux2 #(128) wdata_mux
@@ -121,6 +151,7 @@ cache_arbiter CA
 	.pmem_resp_d,
 	.pmem_read,
 	.pmem_write,
-	.I_D_out
+	.I_D_out,
+	.found(found)
 );
 endmodule

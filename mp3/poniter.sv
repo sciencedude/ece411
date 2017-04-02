@@ -5,13 +5,12 @@ module poniter
 	input isI,
 	input mem_resp,
 	input state,
-	output marmux_sel,
-	output loadPtr,
-	output loadst,
-	output rwmux_sel,
-	output read,
-	output write,
-	output stin
+	output logic marmux_sel, loadPtr,
+					loadst,
+					rwmux_sel,
+					read,
+					write,
+					stin
 );
 
 

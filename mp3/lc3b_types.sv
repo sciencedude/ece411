@@ -48,7 +48,7 @@ typedef struct packed
 	logic [2:0]srcbmux_sel;
 	lc3b_aluop aluop;
 	logic marmux_sel;
-	logic [1:0] mdr_mux_sel;
+	logic [2:0] mdr_mux_sel;
 	logic [1:0] cc_mux_sel;
 	logic load_regfile;
 	logic load_cc;
