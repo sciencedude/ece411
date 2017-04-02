@@ -39,6 +39,7 @@ assign alu_out = mem_wb_out.alu_out;
 logic I_D_out;
 logic pmem_resp_i, pmem_resp_d;
 logic stall;
+lc3b_mem_wmask wmask;
 //intialize all the stages in pipeline
 fetch F(.*, .address(address_i), .intr(instruction));
 decode D(.*);
@@ -72,7 +73,7 @@ cache D_cache
 	.mem_wdata,
 	.mem_read(mem_read_d),
 	.mem_write,
-	.mem_byte_enable(2'b11),
+	.mem_byte_enable(wmask),
 	.pmem_resp(pmem_resp_d),
 	.pmem_rdata,
 	.mem_resp(mem_resp_d),

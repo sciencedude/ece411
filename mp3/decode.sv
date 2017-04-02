@@ -53,21 +53,22 @@ regfile REGFILE
 always_comb
 begin
 	id_ex.control_signals.srcamux_sel = 1'b0;
-	id_ex.control_signals.srcbmux_sel = 2'b00;
+	id_ex.control_signals.srcbmux_sel = 3'b000;
 	id_ex.control_signals.aluop = alu_add;
 	id_ex.control_signals.marmux_sel = 1'b0;	//change it to zero
-	id_ex.control_signals.mdr_mux_sel = 2'b00; //change it to zero
+	id_ex.control_signals.mdr_mux_sel = 3'b000; //change it to zero
 	id_ex.control_signals.cc_mux_sel = 1'b0;
 	id_ex.control_signals.load_regfile = 1'b0; //change it to zero
 	id_ex.control_signals.load_cc = 1'b0;
 	id_ex.control_signals.mem_write = 1'b0;
 	id_ex.control_signals.mem_read_d = 1'b0;
+	id_ex.control_signals.isI = 1'b0;
 		case(opcode)
 		op_add: begin
 						id_ex.control_signals.load_cc = 1'b1;
 						id_ex.control_signals.load_regfile = 1'b1; 
 						if(if_id.intr[5])
-							id_ex.control_signals.srcbmux_sel = 2'b01;
+							id_ex.control_signals.srcbmux_sel = 3'b001;
 		end
 		
 		op_and: begin
@@ -75,7 +76,7 @@ begin
 						id_ex.control_signals.aluop = alu_and;
 						id_ex.control_signals.load_regfile = 1'b1; 
 						if(if_id.intr)
-							id_ex.control_signals.srcbmux_sel = 2'b01;
+							id_ex.control_signals.srcbmux_sel = 3'b001;
 		end
 		
 		op_not: begin
@@ -88,8 +89,8 @@ begin
 						id_ex.control_signals.load_cc = 1'b1;
 						id_ex.control_signals.aluop = alu_add;
 						id_ex.control_signals.srcamux_sel = 1'b0;
-						id_ex.control_signals.srcbmux_sel = 2'b10;
-						id_ex.control_signals.mdr_mux_sel = 2'b01;
+						id_ex.control_signals.srcbmux_sel = 3'b010;
+						id_ex.control_signals.mdr_mux_sel = 3'b001;
 						id_ex.control_signals.load_regfile = 1'b1;
 						id_ex.control_signals.cc_mux_sel = 2'b01;
 						id_ex.control_signals.mem_read_d = 1'b1;
@@ -98,8 +99,8 @@ begin
 		op_str: begin
 						id_ex.control_signals.aluop = alu_add;
 						id_ex.control_signals.srcamux_sel = 1'b0;
-						id_ex.control_signals.srcbmux_sel = 2'b10;
-						id_ex.control_signals.mdr_mux_sel = 2'b10; //add this so mdr has sr register to write to scp
+						id_ex.control_signals.srcbmux_sel = 3'b010;
+						id_ex.control_signals.mdr_mux_sel = 3'b010; //add this so mdr has sr register to write to scp
 						id_ex.control_signals.mem_write = 1'b1;
 						//id_ex.control_signals.mem_read_d = 1'b1; dont't want to read and write just write
 					end
@@ -107,28 +108,28 @@ begin
 		op_br: begin
 						id_ex.control_signals.aluop = alu_add;
 						id_ex.control_signals.srcamux_sel = 1'b1;
-						id_ex.control_signals.srcbmux_sel = 2'b11; //this need to calculate
+						id_ex.control_signals.srcbmux_sel = 2'b011; //this need to calculate
 		end
 		op_lea: begin
 		                id_ex.control_signals.aluop = alu_add;
 						id_ex.control_signals.srcamux_sel = 1'b1;
-						id_ex.control_signals.srcbmux_sel = 2'b11;
+						id_ex.control_signals.srcbmux_sel = 2'b011;
 						id_ex.control_signals.load_cc = 1'b1;
 						id_ex.control_signals.load_regfile = 1'b1; 
 		end
-		op_std : begin
+		op_stb : begin
 						id_ex.control_signals.aluop = alu_add;
 						id_ex.control_signals.srcamux_sel = 1'b0;
-						id_ex.control_signals.srcbmux_sel = 2'b10; //change this with right mux entery later it should be SEXT(offset6)] with no left shift
-						id_ex.control_signals.mdr_mux_sel = 2'b10; //add this so mdr has sr register to write to scp
+						id_ex.control_signals.srcbmux_sel = 2'b011; //SEXT(offset6)] with no left shift
+						id_ex.control_signals.mdr_mux_sel = 2'b11; //add this so mdr has sr register to write to scp
 						id_ex.control_signals.mem_write = 1'b1;
 		end
-	    op_ldb	       
+	    op_ldb :begin	       
 						id_ex.control_signals.load_cc = 1'b1;
 						id_ex.control_signals.aluop = alu_add;
 						id_ex.control_signals.srcamux_sel = 1'b0;
-						id_ex.control_signals.srcbmux_sel = 2'b10;//change this with right mux entery later it should be SEXT(offset6)] with no left shift
-						id_ex.control_signals.mdr_mux_sel = 2'b01;
+						id_ex.control_signals.srcbmux_sel = 2'b011;//SEXT(offset6)] with no left shift
+						id_ex.control_signals.mdr_mux_sel = 2'b100;
 						id_ex.control_signals.load_regfile = 1'b1;
 						id_ex.control_signals.cc_mux_sel = 2'b01;
 						id_ex.control_signals.mem_read_d = 1'b1;	    
@@ -137,18 +138,20 @@ begin
 						id_ex.control_signals.aluop = alu_add;
 						id_ex.control_signals.srcamux_sel = 1'b0;
 						id_ex.control_signals.srcbmux_sel = 2'b10; 
-						id_ex.control_signals.mdr_mux_sel = 2'b10; //add this so mdr has sr register to write to scp
+						id_ex.control_signals.mdr_mux_sel = 2'b010; //add this so mdr has sr register to write to scp
 						id_ex.control_signals.mem_write = 1'b1;
+						id_ex.control_signals.isI = 1'b1;
 		end
-	    op_ldi	       
+	    op_ldi :begin       
 						id_ex.control_signals.load_cc = 1'b1;
 						id_ex.control_signals.aluop = alu_add;
 						id_ex.control_signals.srcamux_sel = 1'b0;
 						id_ex.control_signals.srcbmux_sel = 2'b10;
-						id_ex.control_signals.mdr_mux_sel = 2'b01;
+						id_ex.control_signals.mdr_mux_sel = 2'b001;
 						id_ex.control_signals.load_regfile = 1'b1;
 						id_ex.control_signals.cc_mux_sel = 2'b01;
-						id_ex.control_signals.mem_read_d = 1'b1;	    
+						id_ex.control_signals.mem_read_d = 1'b1;	  
+						id_ex.control_signals.isI = 1'b1;
 	    end	    
 	endcase
 				

@@ -10,27 +10,112 @@ module mem_stage
 	output mem_write,
 	output mem_read_d,
 	output logic stall,
-	output lc3b_word mem_wdata, address
+	output lc3b_word mem_wdata, address,
+	output lc3b_mem_wmask wmask
 );
 
-MEM_WB mem_wb_in;
+lc3b_word marimux_out;
+lc3b_word byteread_out;
+lc3b_word ptr_out;
+logic read;
+logic write;
+logic rwmux_sel;
+logic marmux_sel;
+logic state;
+logic loadPtr;
+logic loadst;
+logic stin;
 
+
+MEM_WB mem_wb_in;
+//not sure if this mux is needed remember to bring this up
 mux2 mar_mux
 (
 	.sel(ex_mem.control_signals.marmux_sel),
-	.a(ex_mem.alu_out),
+	.a(marimux_out),
 	.b(ex_mem.srcb_out), //i have no idea why this is here scp
 	.f(address)
 );
 
-mux4 mdr_mux
+poniter ptr
+(
+	.isI(ex_mem.control_signals.isI),
+	.mem_resp(mem_resp_d),
+	.state,
+	.marmux_sel,
+	.loadPtr,
+	.loadst,
+	.rwmux_sel,
+	.read,
+	.stin,
+	.write
+);
+
+register ptraddress
+(
+	.clk,
+	.load(loadPtr),
+	.in(mem_rdata),
+	.out(ptr_out)
+);
+
+register #(.width(1)) st
+(
+	.clk,
+	.load(loadst),
+	.in(stin),
+	.out(state)
+);
+
+mux2 mari_mux
+(
+	.sel(marmux_sel),
+	.a(ex_mem.alu_out),
+	.b(ptr_out),
+	.f(marimux_out)
+);
+
+
+mux2 #(.width(1)) rmux
+(
+	.sel(rwmux_sel),
+	.a(ex_mem.control_signals.mem_read_d),
+	.b(read),
+	.f(mem_read_d)
+);
+
+mux2 #(.width(1)) wmux
+(
+	.sel(rwmux_sel),
+	.a(ex_mem.control_signals.mem_write),
+	.b(write),
+	.f(mem_write)
+);
+
+mux2 ldborder
+(
+	.sel(ex_mem.alu_out[0]),
+	.a(mem_rdata[7:0]),
+	.b(mem_rdata[15:8]),
+	.f(byteread_out)
+);
+
+mux8 mdr_mux
 (
 	.sel(ex_mem.control_signals.mdr_mux_sel),
 	.a(ex_mem.alu_out),
 	.b(mem_rdata),
 	.c(ex_mem.srcb_out), //added this because was in paper design scp
-	.d(16'h0),
+	.d({ex_mem.srcb_out[7:0],ex_mem.srcb_out[7:0]}),
+	.e(byteread_out),
 	.f(mem_wdata)
+);
+//this mask the bye mask for the L1 data cache
+mem_mask_gen Mem_Mask_gen
+(
+	.address0(ex_mem.alu_out[0]),
+	.intr(ex_mem.intr),
+	.mask(wmask)
 );
 
 //assign mem_wb.address = ex_mem.address;
@@ -39,13 +124,11 @@ assign mem_wb_in.pc_out = ex_mem.pc_out;
 assign mem_wb_in.alu_out = ex_mem.alu_out;
 assign mem_wb_in.intr = ex_mem.intr;
 assign mem_wb_in.control_signals = ex_mem.control_signals;
-assign mem_write = ex_mem.control_signals.mem_write;
-assign mem_read_d = ex_mem.control_signals.mem_read_d;
 
 //stall = 1 means don't stall
 always_comb
 begin
-	if(mem_read_d)
+	if((ex_mem.control_signals.isI == 1 && state == 0) || mem_read_d== 1 || mem_write == 1) //add write to case 
 	stall = mem_resp_d;
 	else
 	stall = 1'b1;
