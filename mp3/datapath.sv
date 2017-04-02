@@ -55,9 +55,9 @@ wb_stage W(.*, .mem_wb(mem_wb_out));
 cache I_cache
 (
 	.clk,
-	.mem_address(mem_address_i),
+	.mem_address(address_i),//mem_address_i),
 	.mem_wdata,
-	.mem_read(mem_read_i),
+	.mem_read(1'b1),//mem_read_i),
 	.mem_write,
 	.mem_byte_enable(2'b11),
 	.pmem_resp(pmem_resp_i),
@@ -80,8 +80,8 @@ cache D_cache
 	.mem_read(mem_read_d),
 	.mem_write,
 	.mem_byte_enable(wmask),
-	.pmem_resp(pmem_resp_d | found),
-	.pmem_rdata(pmem_rdata_d),
+	.pmem_resp(pmem_resp_d),// | found),
+	.pmem_rdata,//(pmem_rdata_d),
 	.mem_resp(mem_resp_d),
 	.mem_rdata(data),
 	.pmem_read(pmem_readd),

@@ -151,7 +151,7 @@ register #(.width($bits(MEM_WB))) mem_wb
 	.clk,
 	.in(mem_wb_in),
 	.out(mem_wb_out),
-	.load(mem_resp_d)
+	.load(stall)
  );
 
 endmodule : mem_stage

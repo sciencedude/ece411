@@ -18,7 +18,7 @@ module cache_arbiter
 	output logic I_D_out
 );
 
-enum int unsigned {unlock,lock} state, next_state;
+enum int unsigned {unlock, lock_i, lock_d} state, next_state;
 
 always_ff@(posedge clk)
 begin
@@ -30,10 +30,16 @@ always_comb
 begin
 	next_state = state;
 	case(state)
-	lock : if(pmem_resp | found)
+	lock_i : if(pmem_resp)
 				next_state = unlock;
-	unlock : if(pmem_read_i|pmem_write_i|pmem_read_d|pmem_write_d)
-					next_state = lock;
+	lock_d : if(pmem_resp)
+				next_state = unlock;
+	unlock : begin
+				if(pmem_read_d|pmem_write_d)
+					next_state = lock_d;
+				else if(pmem_read_i|pmem_write_i)
+					next_state = lock_i;
+	end
 	endcase
 end
 
@@ -46,19 +52,17 @@ begin
 	pmem_resp_i = 1'b0;
 	case(state)
 		unlock:;
-		lock : begin
-			if(pmem_read_i|pmem_write_i)	begin
-				pmem_read = pmem_read_i;
-				pmem_write = pmem_write_i;
-				pmem_resp_i = pmem_resp;
-			end
-			else	begin
+		lock_d : begin
 				pmem_read = pmem_read_d;
 				pmem_write = pmem_write_d;
 				pmem_resp_d = pmem_resp;
 				I_D_out = 1'b1;
+				end
+		lock_i :	begin
+				pmem_read = pmem_read_i;
+				pmem_write = pmem_write_i;
+				pmem_resp_i = pmem_resp;
 			end
-		end
 	endcase
 	
 end

@@ -32,7 +32,6 @@ output logic addrmux_sel
 assign tag = mem_address[15:7];
 assign set = mem_address[6:4];
 assign offset = mem_address[3:1];
-assign mem_resp = found;
 
 enum int unsigned {
 idle,
@@ -67,6 +66,7 @@ begin : nextstatetable
 		read : begin
 			if(found)
 			next_state = idle;
+			
 			else
 			next_state = read_from_mem;
 		end
@@ -113,13 +113,16 @@ begin
 	pmem_read = 1'b0;
 	pmem_write = 1'b0;
 	addrmux_sel = 1'b0;
-	
+	mem_resp = 1'b0;
 	
 	case(state)
 	
 	idle: ;
 	
-	read: LRU_write = 1;
+	read: begin
+			LRU_write = 1;
+			mem_resp = found;
+			end
 	
 	write:	begin
 					if(~cout_1 & ~cout_2)	begin
@@ -129,6 +132,7 @@ begin
 					dirty_write = 1'b1;
 					dirty_write_val = 1'b1;
 					LRU_write = 1'b1;
+					mem_resp = found;
 					end
 				end
 				
