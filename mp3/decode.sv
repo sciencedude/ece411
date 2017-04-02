@@ -131,11 +131,9 @@ begin
 						id_ex.control_signals.aluop = alu_add;
 						id_ex.control_signals.srcamux_sel = 1'b1;
 						id_ex.control_signals.srcbmux_sel = 3'b011; //this need to calculate
-						if(branch_enable)
-							pcmux_sel = 2'b01;
 		end
 		op_lea: begin
-		                id_ex.control_signals.aluop = alu_add;
+		            id_ex.control_signals.aluop = alu_add;
 						id_ex.control_signals.srcamux_sel = 1'b1;
 						id_ex.control_signals.srcbmux_sel = 3'b011;
 						id_ex.control_signals.load_cc = 1'b1;

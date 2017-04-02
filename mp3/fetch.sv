@@ -18,16 +18,25 @@ module fetch
 lc3b_word add_out;
 lc3b_word pc_in;
 lc3b_word pc_out;
+lc3b_word branchmux_out;
 plus2 add
 (
 	.in(pc_out), //program would branch only for one intr the countie like it didn't branch changed to pc_out scp
 	.out(add_out)
 );
 
+mux2 branchmux
+(
+	.sel(branch_enable),
+	.a(add_out),
+	.b(alu_out),
+	.f(branchmux_out)
+);
+
 mux4 pc_mux
 (
 	.sel(pcmux_sel),
-	.a(add_out),
+	.a(branchmux_out),
 	.b(alu_out),
 	.c(mem_wdata),
 	.d(),
