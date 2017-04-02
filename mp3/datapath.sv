@@ -40,6 +40,7 @@ logic I_D_out;
 logic pmem_resp_i, pmem_resp_d;
 logic stall;
 lc3b_mem_wmask wmask;
+logic [1:0] pcmux_sel;
 //intialize all the stages in pipeline
 fetch F(.*, .address(address_i), .intr(instruction));
 decode D(.*);

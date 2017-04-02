@@ -8,6 +8,8 @@ module fetch
 	input mem_resp_i,
 	input stall,
 	input branch_enable,
+	input [1:0] pcmux_sel,
+	input lc3b_word mem_wdata,
 	output lc3b_word address,
 	output IF_ID if_id
 );
@@ -22,11 +24,13 @@ plus2 add
 	.out(add_out)
 );
 
-mux2 pc_mux
+mux4 pc_mux
 (
-	.sel(branch_enable),
+	.sel(pcmux_sel),
 	.a(add_out),
 	.b(alu_out),
+	.c(mem_wdata),
+	.d(),
 	.f(pc_in)
 );
 
