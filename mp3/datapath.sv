@@ -48,22 +48,70 @@ logic [1:0] pcmux_sel;
 logic state;
 logic isI;
 logic mem_intr;
+logic got_intr_out;
+logic got_data_out;
+logic got_intr_load;
+logic got_data_load;
+logic got_intr_in;
+logic got_data_in;
+logic readmux_out;
+logic writemux_out;
+
 //intialize all the stages in pipeline
 fetch F(.*, .address(address_i), .intr(instruction));
 decode D(.*);
 execute E(.*,.id_ex_out(id_ex1));
-mem_stage M(.*, .ex_mem(ex_mem_out),.address(address_d), .mem_rdata(data));
+mem_stage M(.*,.mem_intr ,.ex_mem(ex_mem_out),.address(address_d), .mem_rdata(data));
 wb_stage W(.*, .mem_wb(mem_wb_out));
 
 stall_logic sl
 (
 	.mem_resp_i,
 	.mem_resp_d,
+	.got_intr_out,
+	.got_data_out,
 	.stall,
 	.state,
 	.isI,
-	.mem_intr
+	.mem_intr,
+	.got_intr_load,
+	.got_data_load,
+	.got_intr_in,
+	.got_data_in
 );
+
+register #(1) got_intr
+(
+	.clk,
+	.in(got_intr_in),
+	.load(got_intr_load),
+	.out(got_intr_out)
+);
+
+register #(1) got_data
+(
+	.clk,
+	.in(got_data_in),
+	.load(got_data_load),
+	.out(got_data_out)
+);
+
+mux2 #(1) readmux
+(
+	.sel(got_data_out),
+	.a(mem_read_d),
+	.b(1'b0),
+	.f(readmux_out)
+);
+
+mux2 #(1) writemux
+(
+	.sel(got_data_out),
+	.a(mem_write),
+	.b(1'b0),
+	.f(writemux_out)
+);
+
 
 
 cache I_cache
@@ -71,7 +119,7 @@ cache I_cache
 	.clk,
 	.mem_address(address_i),//mem_address_i),
 	.mem_wdata,
-	.mem_read(1'b1),//mem_read_i),
+	.mem_read(1'b1&~got_intr_out),//mem_read_i),
 	.mem_write,
 	.mem_byte_enable(2'b11),
 	.pmem_resp(pmem_resp_i),
@@ -91,8 +139,8 @@ cache D_cache
 	.clk,
 	.mem_address(address_d),
 	.mem_wdata,
-	.mem_read(mem_read_d),
-	.mem_write,
+	.mem_read(readmux_out),
+	.mem_write(writemux_out),
 	.mem_byte_enable(wmask),
 	.pmem_resp(pmem_resp_d),// | found),
 	.pmem_rdata,//(pmem_rdata_d),
