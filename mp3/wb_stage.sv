@@ -7,7 +7,9 @@ module wb_stage
 	output logic branch_enable,
 	output lc3b_reg dest,
 	output logic load_regfile,
-	output lc3b_word regfile_in
+	output lc3b_word regfile_in,
+	output logic[1:0] pcmux_sel,
+	output logic destmux_sel
 );
 
 lc3b_nzp gencc_out;
@@ -62,4 +64,6 @@ cccomp cccomp1
 assign load_regfile = mem_wb.control_signals.load_regfile;
 assign dest = mem_wb.intr[11:9];
 assign branch_enable = branch_enable_out&isbr; //part of temp fix find better soultion scp
+assign pcmux_sel = mem_wb.control_signals.pcmux_sel;
+assign destmux_sel = mem_wb.control_signals.destmux_sel;
 endmodule : wb_stage

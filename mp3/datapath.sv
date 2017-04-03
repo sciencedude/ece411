@@ -56,7 +56,7 @@ logic got_intr_in;
 logic got_data_in;
 logic readmux_out;
 logic writemux_out;
-
+logic destmux_sel;
 //intialize all the stages in pipeline
 fetch F(.*, .address(address_i), .intr(instruction));
 decode D(.*);

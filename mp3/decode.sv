@@ -10,8 +10,8 @@ module decode
 	input logic branch_enable,
 	input logic load_regfile,
 	input lc3b_reg dest,
-	output ID_EX id_ex1,
-	output logic [1:0] pcmux_sel
+	input logic destmux_sel,
+	output ID_EX id_ex1
 );
 
 logic comb_sel;
@@ -19,7 +19,6 @@ lc3b_reg src_a;
 lc3b_reg src_b;
 logic [3:0] opcode;
 ID_EX id_ex;
-logic destmux_sel;
 logic [2:0] destmux_out;
 
 assign opcode = if_id.intr[15:12];
@@ -42,13 +41,6 @@ mux2#(3) srcb_mux
 
 assign src_a = if_id.intr[8:6];
 
-always_comb
-begin
-	if(if_id.intr[15:12] == op_jsr || if_id.intr[15:12] == op_trap)
-		destmux_sel = 1'b1;
-	else	
-		destmux_sel = 1'b0;
-end
 
 mux2 #(.width(3)) destmux
 (
@@ -85,7 +77,8 @@ begin
 	id_ex.control_signals.mem_read_d = 1'b0;
 	id_ex.control_signals.isI = 1'b0;
 	id_ex.control_signals.mem_intr = 1'b0;
-	pcmux_sel = 2'b00;
+	id_ex.control_signals.pcmux_sel = 2'b00;
+	id_ex.control_signals.destmux_sel = 1'b0;
 
 		case(opcode)
 		op_add: begin
@@ -185,22 +178,23 @@ begin
 	    end
 		 op_jmp : begin
 						id_ex.control_signals.aluop = alu_pass;
-						pcmux_sel = 2'b01;
+						id_ex.control_signals.pcmux_sel = 2'b01;
 		 end
 		 op_jsr : begin
 						id_ex.control_signals.cc_mux_sel = 2'b10;
 						id_ex.control_signals.load_regfile = 1'b1;
+						id_ex.control_signals.destmux_sel = 1'b1;
 						if(if_id.intr[11])
 						begin
 							id_ex.control_signals.srcamux_sel = 1'b1;
 							id_ex.control_signals.srcbmux_sel = 3'b110;
 							id_ex.control_signals.aluop = alu_add;
-							pcmux_sel = 2'b01;
+							id_ex.control_signals.pcmux_sel = 2'b01;
 						end
 						else
 						begin
 							id_ex.control_signals.aluop = alu_pass;
-							pcmux_sel = 2'b01;
+							id_ex.control_signals.pcmux_sel = 2'b01;
 						end
 		 end
 		 op_shf : begin
@@ -223,8 +217,9 @@ begin
 						id_ex.control_signals.marmux_sel = 2'b10;
 						id_ex.control_signals.mem_read_d = 1'b1;
 						id_ex.control_signals.mdr_mux_sel = 3'b001;
-						pcmux_sel = 2'b10;
+						id_ex.control_signals.pcmux_sel = 2'b10;
 						id_ex.control_signals.mem_intr = 1'b1;
+						id_ex.control_signals.destmux_sel = 1'b1;
 		 end
 	endcase
 				

@@ -54,6 +54,8 @@ typedef struct packed
 	logic load_cc;
 	logic isI;
 	logic mem_intr;
+	logic [1:0] pcmux_sel; 
+	logic destmux_sel;
 }CONTROL;
 
 /* IF_ID register values */

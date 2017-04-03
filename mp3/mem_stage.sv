@@ -107,8 +107,8 @@ mux2 #(.width(1)) wmux
 mux2 ldborder
 (
 	.sel(ex_mem.alu_out[0]),
-	.a(mem_rdata[7:0]),
-	.b(mem_rdata[15:8]),
+	.a({8'b00000000,mem_rdata[7:0]}),
+	.b({8'b00000000,mem_rdata[15:8]}),
 	.f(byteread_out)
 );
 
