@@ -139,7 +139,7 @@ begin
 		op_stb : begin
 						id_ex.control_signals.aluop = alu_add;
 						id_ex.control_signals.srcamux_sel = 1'b0;
-						id_ex.control_signals.srcbmux_sel = 3'b011; //SEXT(offset6)] with no left shift
+						id_ex.control_signals.srcbmux_sel = 3'b100; //SEXT(offset6)] with no left shift
 						id_ex.control_signals.mdr_mux_sel = 3'b011; //add this so mdr has sr register to write to scp
 						id_ex.control_signals.mem_write = 1'b1;
 						id_ex.control_signals.mem_intr = 1'b1;
@@ -148,7 +148,7 @@ begin
 						id_ex.control_signals.load_cc = 1'b1;
 						id_ex.control_signals.aluop = alu_add;
 						id_ex.control_signals.srcamux_sel = 1'b0;
-						id_ex.control_signals.srcbmux_sel = 3'b011;//SEXT(offset6)] with no left shift
+						id_ex.control_signals.srcbmux_sel = 3'b100;//SEXT(offset6)] with no left shift
 						id_ex.control_signals.mdr_mux_sel = 3'b100;
 						id_ex.control_signals.load_regfile = 1'b1;
 						id_ex.control_signals.cc_mux_sel = 2'b01;
