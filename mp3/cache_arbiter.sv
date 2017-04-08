@@ -30,10 +30,18 @@ always_comb
 begin
 	next_state = state;
 	case(state)
-	lock_i : if(pmem_resp)
+	lock_i : begin
+				/*if(pmem_resp & (pmem_read_d | pmem_write_d))
+				next_state = lock_d;
+				else*/ if(pmem_resp)
 				next_state = unlock;
-	lock_d : if(pmem_resp)
+				end
+	lock_d : begin
+				/*if(pmem_resp & pmem_read_i)
+				next_state = lock_i;
+				else*/ if(pmem_resp)
 				next_state = unlock;
+				end
 	unlock : begin
 				if(pmem_read_d|pmem_write_d)
 					next_state = lock_d;
