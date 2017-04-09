@@ -6,6 +6,7 @@ module fetch
 	input logic clk,
 	input lc3b_word alu_out,
 	input mem_resp_i,
+	input stage_sel,
 	input stall,
 	input branch_enable,
 	input [1:0] pcmux_sel,
@@ -47,7 +48,7 @@ mux4 pc_mux
 register #(.width(16)) pc
 (
 	.clk,
-	.load(stall),
+	.load(stall | stage_sel),
 	.in(pc_in),
 	.out(pc_out)
 );

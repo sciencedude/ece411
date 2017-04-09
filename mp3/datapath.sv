@@ -57,12 +57,24 @@ logic got_data_in;
 logic readmux_out;
 logic writemux_out;
 logic destmux_sel;
+logic stage_sel;
+logic [1:0] pcmuxsel;
 //intialize all the stages in pipeline
-fetch F(.*, .address(address_i), .intr(instruction));
+fetch F(.*, .pcmux_sel(pcmuxsel), .address(address_i), .intr(instruction));
 decode D(.*);
 execute E(.*,.id_ex_out(id_ex1));
 mem_stage M(.*,.mem_intr ,.ex_mem(ex_mem_out),.address(address_d), .mem_rdata(data));
 wb_stage W(.*, .mem_wb(mem_wb_out));
+
+assign stage_sel = ex_mem_out.control_signals.stage_sel;
+
+mux2#(2) stage_mux
+(
+	.sel(stage_sel),
+	.a(pcmux_sel),
+	.b(ex_mem_out.control_signals.pcmux_sel),
+	.f(pcmuxsel)
+);
 
 stall_logic sl
 (
