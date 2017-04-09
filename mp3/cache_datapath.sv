@@ -79,7 +79,7 @@ array#(1) valid_0
 	.clk,
 	.address(set),
 	.w_data(pmem_resp),
-	.write(valid_write),
+	.write(valid_write & !LRU_out0),
 	.r_data(valid_out0)
 );
 
@@ -89,7 +89,7 @@ array#(1) valid_1
 	.clk,
 	.address(set),
 	.w_data(pmem_resp),
-	.write(valid_write),
+	.write(valid_write & LRU_out0),
 	.r_data(valid_out1)
 );
 
@@ -164,7 +164,7 @@ dataarray Dataarray_0
 	.clk,
 	.address(set),
 	.w_data(datamux_out),
-	.write(cout_1 & data_write),
+	.write(cout_1 & data_write & !LRU_out0),
 	.MSB(MSB_muxout),
 	.LSB(LSB_muxout),
 	.r_data(dataarray_out0)
@@ -175,7 +175,7 @@ dataarray Dataarray_1
 	.clk,
 	.address(set),
 	.w_data(datamux_out),
-	.write(cout_2 & data_write),
+	.write(cout_2 & data_write & LRU_out0),
 	.MSB(MSB_muxout),
 	.LSB(LSB_muxout),
 	.r_data(dataarray_out1)
@@ -184,7 +184,7 @@ dataarray Dataarray_1
 
 mux2#(128) pmem_mux
 (
-	.sel(cout_2),
+	.sel(cout_2 & valid_out1),
 	.a(dataarray_out0),
 	.b(dataarray_out1),
 	.f(pmem_wdata)
