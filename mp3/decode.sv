@@ -79,7 +79,6 @@ begin
 	id_ex.control_signals.mem_intr = 1'b0;
 	id_ex.control_signals.pcmux_sel = 2'b00;
 	id_ex.control_signals.destmux_sel = 1'b0;
-	id_ex.control_signals.stage_sel = 1'b0;
 
 		case(opcode)
 		op_add: begin
@@ -221,7 +220,6 @@ begin
 						id_ex.control_signals.pcmux_sel = 2'b10;
 						id_ex.control_signals.mem_intr = 1'b1;
 						id_ex.control_signals.destmux_sel = 1'b1;
-						id_ex.control_signals.stage_sel = 1'b1;
 		 end
 	endcase
 				

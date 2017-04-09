@@ -9,13 +9,15 @@ module wb_stage
 	output logic load_regfile,
 	output lc3b_word regfile_in,
 	output logic[1:0] pcmux_sel,
-	output logic destmux_sel
+	output logic destmux_sel,
+	output lc3b_word new_pc
 );
 
 lc3b_nzp gencc_out;
 lc3b_nzp cc_out;
 logic isbr;
 logic branch_enable_out;
+assign new_pc = mem_wb.mem_data;
 
 mux4 cc_mux
 (
