@@ -158,7 +158,7 @@ cache I_cache
 	.mem_address(address_i),//mem_address_i),
 	.mem_wdata,
 	.mem_read(1'b1&~got_intr_out),//mem_read_i),
-	.mem_write,
+	.mem_write(1'b0),
 	.mem_byte_enable(2'b11),
 	.pmem_resp(pmem_resp_i),
 	.pmem_rdata,

@@ -25,6 +25,7 @@ output logic dirty_write_val,
 output logic dirty_write,
 output logic pmem_read,
 output logic pmem_write,
+output logic write_mux_sel,
 output logic addrmux_sel
 );
 
@@ -114,6 +115,7 @@ begin
 	pmem_write = 1'b0;
 	addrmux_sel = 1'b0;
 	mem_resp = 1'b0;
+	write_mux_sel = 1'b0;
 	
 	case(state)
 	
@@ -133,6 +135,7 @@ begin
 					dirty_write_val = 1'b1;
 					LRU_write = 1'b1;
 					mem_resp = found;
+					write_mux_sel = 1'b1;
 					end
 				end
 				

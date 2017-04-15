@@ -18,6 +18,7 @@ module cache_datapath
 	input logic dirty_write_val,
 	input logic dirty_write,
 	input logic addrmux_sel,
+	input logic write_mux_sel,
 	
 	output logic found,
 	output logic dirty,
@@ -29,6 +30,7 @@ module cache_datapath
 
 logic LRU_out0, LRU_out1;
 logic valid_out0, valid_out1;
+logic w1,w2;
 logic [8:0] tag_out0, tag_out1, tagmux_out;
 logic [127:0] Copy_out, datamux_out, dataarray_out0, dataarray_out1;
 logic [7:0] MSB_decoder_out, LSB_decoder_out, MSB_muxout, LSB_muxout, MSB_sel, LSB_sel;
@@ -159,12 +161,27 @@ mux2#(8) LSB_mux
 	.f(LSB_muxout)
 );
 
+mux2#(1) wmux
+(
+	.sel(write_mux_sel),
+	.a(data_write & !LRU_out0),
+	.b(cout_1 & data_write & valid_out0),
+	.f(w1)
+);
+mux2#(1) wmux2
+(
+	.sel(write_mux_sel),
+	.a(data_write & LRU_out0),
+	.b(cout_2 & data_write & valid_out1),
+	.f(w2)
+);
+
 dataarray Dataarray_0
 (
 	.clk,
 	.address(set),
 	.w_data(datamux_out),
-	.write(cout_1 & data_write & !LRU_out0),
+	.write(w1),
 	.MSB(MSB_muxout),
 	.LSB(LSB_muxout),
 	.r_data(dataarray_out0)
@@ -175,7 +192,7 @@ dataarray Dataarray_1
 	.clk,
 	.address(set),
 	.w_data(datamux_out),
-	.write(cout_2 & data_write & LRU_out0),//this is making some data write not happend because they aren't the lru at the time we try to write to them look at 60022 ns and 63480 ns to see this happen
+	.write(w2),//this is making some data write not happend because they aren't the lru at the time we try to write to them look at 60022 ns and 63480 ns to see this happen
 	.MSB(MSB_muxout),
 	.LSB(LSB_muxout),
 	.r_data(dataarray_out1)
