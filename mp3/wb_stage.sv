@@ -10,7 +10,10 @@ module wb_stage
 	output lc3b_word regfile_in,
 	output logic[1:0] pcmux_sel,
 	output logic destmux_sel,
-	output lc3b_word new_pc
+	output lc3b_word new_pc,
+	output lc3b_word wb_pc,
+	output lc3b_word wb_data
+	
 );
 
 lc3b_nzp gencc_out;
@@ -68,4 +71,6 @@ assign dest = mem_wb.intr[11:9];
 assign branch_enable = branch_enable_out&isbr; //part of temp fix find better soultion scp
 assign pcmux_sel = mem_wb.control_signals.pcmux_sel;
 assign destmux_sel = mem_wb.control_signals.destmux_sel;
+assign wb_pc = mem_wb.pc_out;
+assign wb_data = mem_wb.alu_out;
 endmodule : wb_stage

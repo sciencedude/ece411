@@ -1,6 +1,6 @@
-module Compare
+module Compare #(parameter width = 9) 
 (
-	input logic [8:0] a, b,
+	input logic [width-1:0] a, b, // added this so we can compare thing of diffrent bit sizes
 	output logic result
 );
 

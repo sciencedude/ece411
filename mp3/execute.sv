@@ -6,7 +6,9 @@ module execute
 	input ID_EX id_ex_out,
 	input stall,
 	input mem_resp_i,
-	output EX_MEM ex_mem_out
+	output EX_MEM ex_mem_out,
+	output lc3b_word exe_pc,
+	output lc3b_word exe_data
 );
 
 EX_MEM ex_mem_in;
@@ -88,6 +90,8 @@ assign ex_mem_in.intr = id_ex_out.intr;
 assign ex_mem_in.pc_out = id_ex_out.pc_out;
 assign ex_mem_in.srcb_out = id_ex_out.srcb_out;
 assign ex_mem_in.control_signals = id_ex_out.control_signals;
+assign exe_pc = id_ex_out.pc_out;
+assign exe_data = ex_mem_in.alu_out;
 //assign ex_mem_in.address = ex_mem_in.alu_out;
 
  register #(.width($bits(EX_MEM))) ex_mem

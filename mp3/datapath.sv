@@ -60,6 +60,17 @@ logic destmux_sel;
 logic stage_sel;
 logic [1:0] pcmuxsel;
 lc3b_word new_pc;
+lc3b_word mem_pc;
+lc3b_word exe_pc;
+lc3b_word wb_pc;
+lc3b_word srcain_pc;
+lc3b_word srcbin_pc;
+lc3b_word exe_data;
+lc3b_word mem_data;
+lc3b_word wb_data;
+lc3b_word srafwd_data;
+lc3b_word srbfwd_data;	
+
 //intialize all the stages in pipeline
 fetch F(.*, .mem_wdata(new_pc), .address(address_i), .intr(instruction));
 decode D(.*);
@@ -81,6 +92,30 @@ stall_logic sl
 	.got_data_load,
 	.got_intr_in,
 	.got_data_in
+);
+
+datafwd srcafwd
+(
+	.exe_pc,
+	.mem_pc,
+	.wb_pc,
+	.in_pc(srcain_pc),
+	.exe_data,
+	.mem_data,
+	.wb_data,
+	.fwd_data(srafwd_data)	
+);
+
+datafwd srcbfwd
+(
+	.exe_pc,
+	.mem_pc,
+	.wb_pc,
+	.in_pc(srcbin_pc),
+	.exe_data,
+	.mem_data,
+	.wb_data,
+	.fwd_data(srbfwd_data)	
 );
 
 register #(1) got_intr

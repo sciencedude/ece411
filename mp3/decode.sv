@@ -11,6 +11,10 @@ module decode
 	input logic load_regfile,
 	input lc3b_reg dest,
 	input logic destmux_sel,
+	input lc3b_word srafwd_data,
+	input lc3b_word srbfwd_data,	
+	output lc3b_word srcain_pc,
+	output lc3b_word srcbin_pc,
 	output ID_EX id_ex1
 );
 
@@ -20,6 +24,10 @@ lc3b_reg src_b;
 logic [3:0] opcode;
 ID_EX id_ex;
 logic [2:0] destmux_out;
+lc3b_word reg_a;
+lc3b_word reg_b;
+logic reg_a_sel; // set this to 1 if you decet a data hazard
+logic reg_b_sel;
 
 assign opcode = if_id.intr[15:12];
 
@@ -58,9 +66,26 @@ regfile REGFILE
 	.src_a,
 	.src_b,
 	.dest(destmux_out),
-	.reg_a(id_ex.srca_out),
-	.reg_b(id_ex.srcb_out)
+	.reg_a,
+	.reg_b
 );
+
+mux2 #(16) reg_a_mux
+(
+	.sel(reg_a_sel),
+	.a(reg_a),
+	.b(srafwd_data),
+	.f(id_ex.srca_out)
+);
+
+mux2 #(16) reg_b_mux
+(
+	.sel(reg_b_sel),
+	.a(reg_b),
+	.b(srbfwd_data),
+	.f(id_ex.srcb_out)
+);
+
 
 
 always_comb

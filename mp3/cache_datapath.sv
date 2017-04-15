@@ -175,7 +175,7 @@ dataarray Dataarray_1
 	.clk,
 	.address(set),
 	.w_data(datamux_out),
-	.write(cout_2 & data_write & LRU_out0),
+	.write(cout_2 & data_write & LRU_out0),//this is making some data write not happend because they aren't the lru at the time we try to write to them look at 60022 ns and 63480 ns to see this happen
 	.MSB(MSB_muxout),
 	.LSB(LSB_muxout),
 	.r_data(dataarray_out1)
