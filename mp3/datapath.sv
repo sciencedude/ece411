@@ -97,7 +97,7 @@ stall_logic sl
 	.got_data_in
 );
 
-datafwd srcafwd
+/*datafwd srcafwd
 (
 	.exe_pc,
 	.mem_pc,
@@ -119,7 +119,7 @@ datafwd srcbfwd
 	.mem_data,
 	.wb_data,
 	.fwd_data(srbfwd_data)	
-);
+);*/
 
 register #(1) got_intr
 (

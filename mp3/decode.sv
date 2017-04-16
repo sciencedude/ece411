@@ -13,8 +13,8 @@ module decode
 	input logic destmux_sel,
 	input lc3b_word srafwd_data,
 	input lc3b_word srbfwd_data,	
-	output lc3b_word srcain_pc,
-	output lc3b_word srcbin_pc,
+	/*output lc3b_word srcain_pc,
+	output lc3b_word srcbin_pc,*/
 	output ID_EX id_ex1
 );
 
@@ -39,7 +39,7 @@ begin
 	comb_sel = 1'b0;
 end
 
-mux2#(3) srcb_mux
+mux2#(.width(3)) srcb_mux
 (
 	.sel(comb_sel),
 	.a(if_id.intr[2:0]),
@@ -168,8 +168,8 @@ begin
 						id_ex.control_signals.mem_write = 1'b1;
 						id_ex.control_signals.mem_intr = 1'b1;
 						id_ex.destreg = 4'b1000;
-						id_ex.sr1reg = {1'b0, if_id.intr[11:9]};
-						id_ex.sr2reg = {1'b0, if_id.intr[8:6]};
+						id_ex.sr1reg = {1'b0, if_id.intr[8:6]};
+						id_ex.sr2reg = {1'b0, if_id.intr[11:9]};
 						//id_ex.control_signals.mem_read_d = 1'b1; dont't want to read and write just write
 					end
 					
@@ -189,7 +189,7 @@ begin
 						id_ex.control_signals.load_cc = 1'b1;
 						id_ex.control_signals.load_regfile = 1'b1;
 						id_ex.destreg = {1'b0, if_id.intr[11:9]};
-						id_ex.sr1reg = {1'b0, if_id.intr[8:6]};
+						id_ex.sr1reg = 4'b1000;
 						id_ex.sr2reg = 4'b1000;
 		end
 		op_stb : begin
@@ -200,8 +200,8 @@ begin
 						id_ex.control_signals.mem_write = 1'b1;
 						id_ex.control_signals.mem_intr = 1'b1;
 						id_ex.destreg = 4'b1000;
-						id_ex.sr1reg = {1'b0, if_id.intr[11:9]};
-						id_ex.sr2reg = {1'b0, if_id.intr[8:6]};
+						id_ex.sr1reg = {1'b0, if_id.intr[8:6]};
+						id_ex.sr2reg = {1'b0, if_id.intr[11:9]};
 		end
 	    op_ldb :begin	       
 						id_ex.control_signals.load_cc = 1'b1;
@@ -226,8 +226,8 @@ begin
 						id_ex.control_signals.isI = 1'b1;
 						id_ex.control_signals.mem_intr = 1'b1;
 						id_ex.destreg = 4'b1000;
-						id_ex.sr1reg = {1'b0, if_id.intr[11:9]};
-						id_ex.sr2reg = {1'b0, if_id.intr[8:6]};
+						id_ex.sr1reg = {1'b0, if_id.intr[8:6]};
+						id_ex.sr2reg = {1'b0, if_id.intr[11:9]};
 		end
 	    op_ldi : begin	       
 						id_ex.control_signals.load_cc = 1'b1;
