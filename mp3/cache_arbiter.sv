@@ -15,6 +15,7 @@ module cache_arbiter
 	output logic pmem_write,
 	output logic pmem_resp_i,
 	output logic pmem_resp_d,
+	output logic load_reg,
 	output logic I_D_out
 );
 
@@ -58,6 +59,7 @@ begin
 	I_D_out = 1'b0;
 	pmem_resp_d = 1'b0;
 	pmem_resp_i = 1'b0;
+	load_reg = 1'b1;
 	case(state)
 		unlock:;
 		lock_d : begin
@@ -65,11 +67,13 @@ begin
 				pmem_write = pmem_write_d;
 				pmem_resp_d = pmem_resp;
 				I_D_out = 1'b1;
+				load_reg = 1'b1;
 				end
 		lock_i :	begin
 				pmem_read = pmem_read_i;
 				pmem_write = pmem_write_i;
 				pmem_resp_i = pmem_resp;
+				load_reg = 1'b1;
 			end
 	endcase
 	
