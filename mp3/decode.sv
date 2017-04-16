@@ -117,7 +117,7 @@ begin
 						id_ex.control_signals.load_cc = 1'b1;
 						id_ex.control_signals.aluop = alu_and;
 						id_ex.control_signals.load_regfile = 1'b1; 
-						if(if_id.intr)
+						if(if_id.intr[5])
 							id_ex.control_signals.srcbmux_sel = 3'b001;
 		end
 		

@@ -16,7 +16,7 @@ module datafwd
 logic exec_out;
 logic memc_out;
 logic wbc_out;
-logic datamux_sel;
+logic [1:0]datamux_sel;
 
 Compare#(16) exec
 (
@@ -63,9 +63,9 @@ end
 mux4#(16) datamux
 (
 	.sel(datamux_sel),
-	.a(exec_out),
-	.b(memc_out),
-	.c(wbc_out),
+	.a(exe_data),
+	.b(mem_data),
+	.c(wb_data),
 	.f(fwd_data)
 );
 
