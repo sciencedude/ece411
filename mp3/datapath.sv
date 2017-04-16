@@ -70,9 +70,11 @@ lc3b_word mem_data;
 lc3b_word wb_data;
 lc3b_word srafwd_data;
 lc3b_word srbfwd_data;
+lc3b_word pmem_address_in;
 logic [3:0] mem_wb_destreg;
 logic [3:0] ex_mem_destreg;
 lc3b_word ex_mem_data;	
+logic load_reg;
 
 //intialize all the stages in pipeline
 fetch F(.*, .mem_wdata(new_pc), .address(address_i), .intr(instruction));
@@ -194,13 +196,6 @@ cache D_cache
 	.found(found_d)
 );
 
-mux2# (128) get_from_i
-(
-	.sel(found),
-	.a(pmem_rdata),
-	.b(pmem_wdatai),
-	.f(pmem_rdata_d)
-);
 
 mux2#(1) hit
 (
@@ -223,16 +218,9 @@ mux2 #(16) address_mux
 	.sel(I_D_out),
 	.a(pmem_addressi),
 	.b(pmem_addressd),
-	.f(pmem_address)
+	.f(pmem_address_in)
 );
 
-mux2 #(16) address_i_mux
-(
-	.sel(I_D_out),
-	.a(address_i),
-	.b(pmem_addressd),
-	.f(mem_address_i)
-);
 
 mux2 #(128) wdata_mux
 (
@@ -256,6 +244,15 @@ cache_arbiter CA
 	.pmem_read,
 	.pmem_write,
 	.I_D_out,
+	.load_reg,
 	.found(found)
+);
+
+register #(16) address_reg
+(
+	.clk,
+	.load(load_reg),
+	.in(pmem_address_in),
+	.out(pmem_address)
 );
 endmodule
