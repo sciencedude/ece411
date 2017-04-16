@@ -66,11 +66,11 @@ regfile REGFILE
 	.src_a,
 	.src_b,
 	.dest(destmux_out),
-	.reg_a,
-	.reg_b
+	.reg_a(id_ex.srca_out),
+	.reg_b(id_ex.srcb_out)
 );
 
-mux2 #(16) reg_a_mux
+/*mux2 #(16) reg_a_mux
 (
 	.sel(reg_a_sel),
 	.a(reg_a),
@@ -84,7 +84,7 @@ mux2 #(16) reg_b_mux
 	.a(reg_b),
 	.b(srbfwd_data),
 	.f(id_ex.srcb_out)
-);
+);*/
 
 
 
@@ -104,27 +104,45 @@ begin
 	id_ex.control_signals.mem_intr = 1'b0;
 	id_ex.control_signals.pcmux_sel = 2'b00;
 	id_ex.control_signals.destmux_sel = 1'b0;
+	id_ex.destreg = 4'b1000;
+	id_ex.sr1reg = 4'b1000;
+	id_ex.sr2reg = 4'b1000;
 
 		case(opcode)
 		op_add: begin
 						id_ex.control_signals.load_cc = 1'b1;
-						id_ex.control_signals.load_regfile = 1'b1; 
+						id_ex.control_signals.load_regfile = 1'b1;
+						id_ex.destreg = {1'b0, if_id.intr[11:9]};
+						id_ex.sr1reg = {1'b0, if_id.intr[8:6]};
+						id_ex.sr2reg = {1'b0, if_id.intr[2:0]};
 						if(if_id.intr[5])
+						begin
 							id_ex.control_signals.srcbmux_sel = 3'b001;
+							id_ex.sr2reg = 4'b1000;
+						end
 		end
 		
 		op_and: begin
 						id_ex.control_signals.load_cc = 1'b1;
 						id_ex.control_signals.aluop = alu_and;
-						id_ex.control_signals.load_regfile = 1'b1; 
+						id_ex.control_signals.load_regfile = 1'b1;
+						id_ex.destreg = {1'b0, if_id.intr[11:9]};
+						id_ex.sr1reg = {1'b0, if_id.intr[8:6]};
+						id_ex.sr2reg = {1'b0, if_id.intr[2:0]};	
 						if(if_id.intr[5])
+						begin
 							id_ex.control_signals.srcbmux_sel = 3'b001;
+							id_ex.sr2reg = 4'b1000;
+						end
 		end
 		
 		op_not: begin
 						id_ex.control_signals.load_cc = 1'b1;
 						id_ex.control_signals.aluop = alu_not;
 						id_ex.control_signals.load_regfile = 1'b1; 
+						id_ex.destreg = {1'b0, if_id.intr[11:9]};
+						id_ex.sr1reg = {1'b0, if_id.intr[8:6]};
+						id_ex.sr2reg = 4'b1000;
 		end
 		
 		op_ldr: begin
@@ -137,6 +155,9 @@ begin
 						id_ex.control_signals.cc_mux_sel = 2'b01;
 						id_ex.control_signals.mem_read_d = 1'b1;
 						id_ex.control_signals.mem_intr = 1'b1;
+						id_ex.destreg = {1'b0, if_id.intr[11:9]};
+						id_ex.sr1reg = {1'b0, if_id.intr[8:6]};
+						id_ex.sr2reg = 4'b1000;
 					end
 					
 		op_str: begin
@@ -146,6 +167,9 @@ begin
 						id_ex.control_signals.mdr_mux_sel = 3'b010; //add this so mdr has sr register to write to scp
 						id_ex.control_signals.mem_write = 1'b1;
 						id_ex.control_signals.mem_intr = 1'b1;
+						id_ex.destreg = 4'b1000;
+						id_ex.sr1reg = {1'b0, if_id.intr[11:9]};
+						id_ex.sr2reg = {1'b0, if_id.intr[8:6]};
 						//id_ex.control_signals.mem_read_d = 1'b1; dont't want to read and write just write
 					end
 					
@@ -153,13 +177,20 @@ begin
 						id_ex.control_signals.aluop = alu_add;
 						id_ex.control_signals.srcamux_sel = 1'b1;
 						id_ex.control_signals.srcbmux_sel = 3'b011; //this need to calculate
+						id_ex.destreg = 4'b1000;
+						id_ex.sr1reg = 4'b1000;
+						id_ex.sr2reg = 4'b1000;
+						
 		end
 		op_lea: begin
 		            id_ex.control_signals.aluop = alu_add;
 						id_ex.control_signals.srcamux_sel = 1'b1;
 						id_ex.control_signals.srcbmux_sel = 3'b011;
 						id_ex.control_signals.load_cc = 1'b1;
-						id_ex.control_signals.load_regfile = 1'b1; 
+						id_ex.control_signals.load_regfile = 1'b1;
+						id_ex.destreg = {1'b0, if_id.intr[11:9]};
+						id_ex.sr1reg = {1'b0, if_id.intr[8:6]};
+						id_ex.sr2reg = 4'b1000;
 		end
 		op_stb : begin
 						id_ex.control_signals.aluop = alu_add;
@@ -168,6 +199,9 @@ begin
 						id_ex.control_signals.mdr_mux_sel = 3'b011; //add this so mdr has sr register to write to scp
 						id_ex.control_signals.mem_write = 1'b1;
 						id_ex.control_signals.mem_intr = 1'b1;
+						id_ex.destreg = 4'b1000;
+						id_ex.sr1reg = {1'b0, if_id.intr[11:9]};
+						id_ex.sr2reg = {1'b0, if_id.intr[8:6]};
 		end
 	    op_ldb :begin	       
 						id_ex.control_signals.load_cc = 1'b1;
@@ -178,7 +212,10 @@ begin
 						id_ex.control_signals.load_regfile = 1'b1;
 						id_ex.control_signals.cc_mux_sel = 2'b01;
 						id_ex.control_signals.mem_read_d = 1'b1;
-						id_ex.control_signals.mem_intr = 1'b1;					
+						id_ex.control_signals.mem_intr = 1'b1;
+						id_ex.destreg = {1'b0, if_id.intr[11:9]};
+						id_ex.sr1reg = {1'b0, if_id.intr[8:6]};
+						id_ex.sr2reg = 4'b1000;
 	    end
 		op_sti : begin
 						id_ex.control_signals.aluop = alu_add;
@@ -188,6 +225,9 @@ begin
 						id_ex.control_signals.mem_write = 1'b1;
 						id_ex.control_signals.isI = 1'b1;
 						id_ex.control_signals.mem_intr = 1'b1;
+						id_ex.destreg = 4'b1000;
+						id_ex.sr1reg = {1'b0, if_id.intr[11:9]};
+						id_ex.sr2reg = {1'b0, if_id.intr[8:6]};
 		end
 	    op_ldi : begin	       
 						id_ex.control_signals.load_cc = 1'b1;
@@ -200,21 +240,33 @@ begin
 						id_ex.control_signals.mem_read_d = 1'b1;	
 						id_ex.control_signals.isI = 1'b1;
 						id_ex.control_signals.mem_intr = 1'b1;
+						id_ex.destreg = {1'b0, if_id.intr[11:9]};
+						id_ex.sr1reg = {1'b0, if_id.intr[8:6]};
+						id_ex.sr2reg = 4'b1000;
 	    end
 		 op_jmp : begin
 						id_ex.control_signals.aluop = alu_pass;
 						id_ex.control_signals.pcmux_sel = 2'b01;
+						id_ex.destreg = 4'b1000;
+						id_ex.sr1reg = {1'b0, if_id.intr[8:6]};
+						id_ex.sr2reg = 4'b1000;
 		 end
 		 op_jsr : begin
 						id_ex.control_signals.cc_mux_sel = 2'b10;
 						id_ex.control_signals.load_regfile = 1'b1;
 						id_ex.control_signals.destmux_sel = 1'b1;
+						id_ex.destreg = 4'b1000;
+						id_ex.sr1reg = {1'b0, if_id.intr[8:6]};
+						id_ex.sr2reg = 4'b1000;
 						if(if_id.intr[11])
 						begin
 							id_ex.control_signals.srcamux_sel = 1'b1;
 							id_ex.control_signals.srcbmux_sel = 3'b110;
 							id_ex.control_signals.aluop = alu_add;
 							id_ex.control_signals.pcmux_sel = 2'b01;
+							id_ex.destreg = 4'b1000;
+							id_ex.sr1reg = 4'b1000;
+							id_ex.sr2reg = 4'b1000;
 						end
 						else
 						begin
@@ -235,6 +287,9 @@ begin
 							id_ex.control_signals.aluop = alu_sll;
 						id_ex.control_signals.load_regfile = 1'b1;
 						id_ex.control_signals.load_cc = 1'b1;
+						id_ex.destreg = {1'b0, if_id.intr[11:9]};
+						id_ex.sr1reg = {1'b0, if_id.intr[8:6]};
+						id_ex.sr2reg = 4'b1000;
 		 end
 		 op_trap : begin 
 						id_ex.control_signals.cc_mux_sel = 2'b10;
@@ -245,6 +300,9 @@ begin
 						id_ex.control_signals.pcmux_sel = 2'b10;
 						id_ex.control_signals.mem_intr = 1'b1;
 						id_ex.control_signals.destmux_sel = 1'b1;
+						id_ex.destreg = 4'b1000;
+						id_ex.sr1reg = 4'b1000;
+						id_ex.sr2reg = 4'b1000;
 		 end
 	endcase
 				

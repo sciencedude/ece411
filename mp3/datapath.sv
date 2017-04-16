@@ -69,12 +69,15 @@ lc3b_word exe_data;
 lc3b_word mem_data;
 lc3b_word wb_data;
 lc3b_word srafwd_data;
-lc3b_word srbfwd_data;	
+lc3b_word srbfwd_data;
+logic [3:0] mem_wb_destreg;
+logic [3:0] ex_mem_destreg;
+lc3b_word ex_mem_data;	
 
 //intialize all the stages in pipeline
 fetch F(.*, .mem_wdata(new_pc), .address(address_i), .intr(instruction));
 decode D(.*);
-execute E(.*,.id_ex_out(id_ex1));
+execute E(.*,.id_ex_out(id_ex1), .mem_wb_data(regfile_in));
 mem_stage M(.*,.mem_intr ,.ex_mem(ex_mem_out),.address(address_d), .mem_rdata(data));
 wb_stage W(.*, .mem_wb(mem_wb_out));
 

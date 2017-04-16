@@ -6,6 +6,8 @@ module execute
 	input ID_EX id_ex_out,
 	input stall,
 	input mem_resp_i,
+	input [3:0] ex_mem_destreg, mem_wb_destreg,
+	input lc3b_word ex_mem_data, mem_wb_data,
 	output EX_MEM ex_mem_out,
 	output lc3b_word exe_pc,
 	output lc3b_word exe_data
@@ -20,10 +22,25 @@ lc3b_word adj6_out;
 lc3b_word adj9_out;
 lc3b_word sext_6;
 lc3b_word adj11_out;
+logic [1:0] datafwd_sra_sel;
+lc3b_word datafwd_sra_out;
+logic [1:0] datafwd_srb_sel;
+lc3b_word datafwd_srb_out;
+
+mux4 datafwd_sra
+(
+	.sel(datafwd_sra_sel),
+	.a(id_ex_out.srca_out),
+	.b(mem_wb_data),
+	.c(ex_mem_data),
+	.d(),
+	.f(datafwd_sra_out)
+);
+
 mux2 srcamux
 (
 	.sel(id_ex_out.control_signals.srcamux_sel),
-	.a(id_ex_out.srca_out),
+	.a(datafwd_sra_out),
 	.b(id_ex_out.pc_out),
 	.f(srcamux_out)
 );
@@ -64,10 +81,20 @@ adj #(.width(11)) adj11
 	.out(adj11_out)
 );
 
+mux4 datafwd_srb
+(
+	.sel(datafwd_srb_sel),
+	.a(id_ex_out.srcb_out),
+	.b(mem_wb_data),
+	.c(ex_mem_data),
+	.d(),
+	.f(datafwd_srb_out)
+);
+
 mux8 srcbmux
 (
 	.sel(id_ex_out.control_signals.srcbmux_sel),
-	.a(id_ex_out.srcb_out),
+	.a(datafwd_srb_out),
 	.b(imm5_out),
 	.c(adj6_out),
 	.d(adj9_out),
@@ -92,7 +119,22 @@ assign ex_mem_in.srcb_out = id_ex_out.srcb_out;
 assign ex_mem_in.control_signals = id_ex_out.control_signals;
 assign exe_pc = id_ex_out.pc_out;
 assign exe_data = ex_mem_in.alu_out;
+assign ex_mem_in.destreg = id_ex_out.destreg;
 //assign ex_mem_in.address = ex_mem_in.alu_out;
+
+always_comb
+begin
+datafwd_sra_sel = 2'b00;
+datafwd_srb_sel = 2'b00;
+	if((ex_mem_destreg == id_ex_out.sr1reg) && (ex_mem_destreg != 4'b1000))
+		datafwd_sra_sel = 2'b10;
+	else if((ex_mem_destreg == id_ex_out.sr2reg) && (ex_mem_destreg != 4'b1000))
+		datafwd_srb_sel = 2'b10;
+	else if(~((ex_mem_destreg == id_ex_out.sr1reg) && (ex_mem_destreg != 4'b1000)) && ((mem_wb_destreg == id_ex_out.sr1reg) && mem_wb_destreg != 4'b1000))
+		datafwd_sra_sel = 2'b01;
+	else if(~((ex_mem_destreg == id_ex_out.sr1reg) && (ex_mem_destreg != 4'b1000)) && ((mem_wb_destreg == id_ex_out.sr1reg) && mem_wb_destreg != 4'b1000))
+		datafwd_srb_sel = 2'b01;
+end
 
  register #(.width($bits(EX_MEM))) ex_mem
  (

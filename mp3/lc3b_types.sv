@@ -73,6 +73,9 @@ typedef struct packed
 	lc3b_word srca_out;
 	lc3b_word srcb_out;
 	lc3b_word intr;
+	logic [3:0] destreg;
+	logic [3:0] sr1reg;
+	logic [3:0] sr2reg;
 }ID_EX;
 
 typedef struct packed
@@ -84,6 +87,7 @@ typedef struct packed
 	lc3b_word alu_out;
 	lc3b_word srcb_out;
 	lc3b_word intr;
+	logic [3:0] destreg;
 }EX_MEM;
 
 typedef struct packed
@@ -94,6 +98,7 @@ typedef struct packed
 	lc3b_word pc_out;
 	lc3b_word alu_out;
 	lc3b_word intr;
+	logic [3:0] destreg;
 }MEM_WB;
 	
 

@@ -17,7 +17,9 @@ module mem_stage
 	output logic state,
 	output logic mem_intr,
 	output lc3b_word mem_pc,
-	output lc3b_word mem_data
+	output lc3b_word mem_data,
+	output logic [3:0] ex_mem_destreg,
+	output lc3b_word ex_mem_data
 );
 
 lc3b_word marimux_out;
@@ -141,10 +143,13 @@ assign mem_wb_in.pc_out = ex_mem.pc_out;
 assign mem_wb_in.alu_out = ex_mem.alu_out;
 assign mem_wb_in.intr = ex_mem.intr;
 assign mem_wb_in.control_signals = ex_mem.control_signals;
+assign mem_wb_in.destreg = ex_mem.destreg;
 assign isI = ex_mem.control_signals.isI;
 assign mem_intr = ex_mem.control_signals.mem_intr;
 assign mem_pc = ex_mem.pc_out;
 assign mem_data =  ex_mem.alu_out;
+assign ex_mem_destreg = ex_mem.destreg;
+assign ex_mem_data = ex_mem.alu_out;
 //stall = 1 means don't stall
 /*always_comb
 begin

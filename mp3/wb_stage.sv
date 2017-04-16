@@ -12,7 +12,8 @@ module wb_stage
 	output logic destmux_sel,
 	output lc3b_word new_pc,
 	output lc3b_word wb_pc,
-	output lc3b_word wb_data
+	output lc3b_word wb_data,
+	output logic [3:0] mem_wb_destreg
 	
 );
 
@@ -73,4 +74,5 @@ assign pcmux_sel = mem_wb.control_signals.pcmux_sel;
 assign destmux_sel = mem_wb.control_signals.destmux_sel;
 assign wb_pc = mem_wb.pc_out;
 assign wb_data = mem_wb.alu_out;
+assign mem_wb_destreg = mem_wb.destreg;
 endmodule : wb_stage

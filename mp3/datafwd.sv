@@ -66,6 +66,7 @@ mux4#(16) datamux
 	.a(exe_data),
 	.b(mem_data),
 	.c(wb_data),
+	.d(),
 	.f(fwd_data)
 );
 
