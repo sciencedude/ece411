@@ -117,7 +117,7 @@ alu ALU
 
 assign ex_mem_in.intr = id_ex_out.intr;
 assign ex_mem_in.pc_out = id_ex_out.pc_out;
-assign ex_mem_in.srcb_out = id_ex_out.srcb_out;
+assign ex_mem_in.srcb_out = datafwd_srb_out;
 assign ex_mem_in.control_signals = id_ex_out.control_signals;
 assign exe_pc = id_ex_out.pc_out;
 assign exe_data = ex_mem_in.alu_out;
@@ -130,11 +130,12 @@ begin
 	datafwd_srb_sel = 2'b00;
 	if((ex_mem_destreg == id_ex_out.sr1reg) && (ex_mem_destreg != 4'b1000))
 		datafwd_sra_sel = 2'b10;
-	else if((ex_mem_destreg == id_ex_out.sr2reg) && (ex_mem_destreg != 4'b1000))
-		datafwd_srb_sel = 2'b10;
-	else if(!((ex_mem_destreg == id_ex_out.sr1reg) && (ex_mem_destreg != 4'b1000)) && ((mem_wb_destreg == id_ex_out.sr1reg) && mem_wb_destreg != 4'b1000))
+	else if((mem_wb_destreg == id_ex_out.sr1reg) && (mem_wb_destreg != 4'b1000))
 		datafwd_sra_sel = 2'b01;
-	else if(!((ex_mem_destreg == id_ex_out.sr2reg) && (ex_mem_destreg != 4'b1000)) && ((mem_wb_destreg == id_ex_out.sr2reg) && mem_wb_destreg != 4'b1000))
+	
+	if((ex_mem_destreg == id_ex_out.sr2reg) && (ex_mem_destreg != 4'b1000))
+		datafwd_srb_sel = 2'b10;	
+	else if((mem_wb_destreg == id_ex_out.sr2reg) && (mem_wb_destreg != 4'b1000))
 		datafwd_srb_sel = 2'b01;
 end
 

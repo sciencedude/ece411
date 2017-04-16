@@ -33,6 +33,7 @@ logic marmux_sel;
 logic loadPtr;
 logic loadst;
 logic stin;
+lc3b_word regfile_in;
 
 
 MEM_WB mem_wb_in;
@@ -137,6 +138,16 @@ mem_mask_gen Mem_Mask_gen
 	.mask(wmask)
 );
 
+mux4 cc_mux
+(
+	.sel(ex_mem.control_signals.cc_mux_sel),
+	.a(ex_mem.alu_out),
+	.b(mem_wdata),
+	.c(ex_mem.pc_out),
+	.d(16'h0),
+	.f(regfile_in)
+);
+
 //assign mem_wb.address = ex_mem.address;
 assign mem_wb_in.mem_data = mem_wdata;
 assign mem_wb_in.pc_out = ex_mem.pc_out;
@@ -149,7 +160,8 @@ assign mem_intr = ex_mem.control_signals.mem_intr;
 assign mem_pc = ex_mem.pc_out;
 assign mem_data =  ex_mem.alu_out;
 assign ex_mem_destreg = ex_mem.destreg;
-assign ex_mem_data = ex_mem.alu_out;
+//assign ex_mem_data = ex_mem.alu_out;
+assign ex_mem_data = regfile_in;
 //stall = 1 means don't stall
 /*always_comb
 begin

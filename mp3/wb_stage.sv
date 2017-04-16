@@ -73,6 +73,7 @@ assign branch_enable = branch_enable_out&isbr; //part of temp fix find better so
 assign pcmux_sel = mem_wb.control_signals.pcmux_sel;
 assign destmux_sel = mem_wb.control_signals.destmux_sel;
 assign wb_pc = mem_wb.pc_out;
-assign wb_data = mem_wb.alu_out;
+//assign wb_data = mem_wb.alu_out;
+assign wb_data = regfile_in;
 assign mem_wb_destreg = mem_wb.destreg;
 endmodule : wb_stage
