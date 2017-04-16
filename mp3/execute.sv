@@ -6,8 +6,10 @@ module execute
 	input ID_EX id_ex_out,
 	input stall,
 	input mem_resp_i,
-	input [3:0] ex_mem_destreg, mem_wb_destreg,
-	input lc3b_word ex_mem_data, mem_wb_data,
+	input [3:0] ex_mem_destreg, 
+	input [3:0] mem_wb_destreg,
+	input lc3b_word ex_mem_data, 
+	input lc3b_word mem_wb_data,
 	output EX_MEM ex_mem_out,
 	output lc3b_word exe_pc,
 	output lc3b_word exe_data
@@ -124,15 +126,15 @@ assign ex_mem_in.destreg = id_ex_out.destreg;
 
 always_comb
 begin
-datafwd_sra_sel = 2'b00;
-datafwd_srb_sel = 2'b00;
+	datafwd_sra_sel = 2'b00;
+	datafwd_srb_sel = 2'b00;
 	if((ex_mem_destreg == id_ex_out.sr1reg) && (ex_mem_destreg != 4'b1000))
 		datafwd_sra_sel = 2'b10;
 	else if((ex_mem_destreg == id_ex_out.sr2reg) && (ex_mem_destreg != 4'b1000))
 		datafwd_srb_sel = 2'b10;
-	else if(~((ex_mem_destreg == id_ex_out.sr1reg) && (ex_mem_destreg != 4'b1000)) && ((mem_wb_destreg == id_ex_out.sr1reg) && mem_wb_destreg != 4'b1000))
+	else if(!((ex_mem_destreg == id_ex_out.sr1reg) && (ex_mem_destreg != 4'b1000)) && ((mem_wb_destreg == id_ex_out.sr1reg) && mem_wb_destreg != 4'b1000))
 		datafwd_sra_sel = 2'b01;
-	else if(~((ex_mem_destreg == id_ex_out.sr1reg) && (ex_mem_destreg != 4'b1000)) && ((mem_wb_destreg == id_ex_out.sr1reg) && mem_wb_destreg != 4'b1000))
+	else if(!((ex_mem_destreg == id_ex_out.sr2reg) && (ex_mem_destreg != 4'b1000)) && ((mem_wb_destreg == id_ex_out.sr2reg) && mem_wb_destreg != 4'b1000))
 		datafwd_srb_sel = 2'b01;
 end
 
