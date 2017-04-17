@@ -3,14 +3,21 @@ import lc3b_types ::*;
 module datapath
 (
 	input logic clk,
-	input logic pmem_resp,
-	input logic [127:0] pmem_rdata,
-	output logic pmem_read,
-	output logic pmem_write,
-	output logic [127:0] pmem_wdata,
+	input logic physical_resp,
+	input logic [127:0] physical_rdata,
+	output logic physical_read,
+	output logic physical_write,
+	output logic [127:0] physical_wdata,
 	output logic [15:0] pmem_address
 );
 
+logic pmem_resp;
+logic [127:0] pmem_rdata;
+logic pmem_read;
+logic pmem_read_in;
+logic pmem_write;
+logic [127:0] pmem_wdata;
+assign pmem_rdata = physical_wdata;
 lc3b_word instruction;
 lc3b_word data;
 lc3b_word address_i;
@@ -241,8 +248,8 @@ cache_arbiter CA
 	.pmem_resp,
 	.pmem_resp_i,
 	.pmem_resp_d,
-	.pmem_read,
-	.pmem_write,
+	.pmem_read(pmem_read_in),
+	.pmem_write(pmem_write_in),
 	.I_D_out,
 	.load_reg,
 	.found(found)
@@ -255,4 +262,23 @@ register #(16) address_reg
 	.in(pmem_address_in),
 	.out(pmem_address)
 );
+
+register #(1) pmem_readreg
+(
+	.clk,
+	.load(1'b1),
+	.in(pmem_read_in),
+	.out(pmem_read)
+);
+
+register #(1) pmem_writereg
+(
+	.clk,
+	.load(1'b1),
+	.in(pmem_write_in),
+	.out(pmem_write)
+);
+
+L2 L2_cache(.*);
+
 endmodule
