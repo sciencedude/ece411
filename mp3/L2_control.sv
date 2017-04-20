@@ -46,6 +46,21 @@ begin
 	endcase
 end
 
+int hits = 0;
+int miss = 0;
+always_ff @(posedge clk)
+begin
+	if(pmem_read & hit)
+	hits+=1;
+end
+always_ff @(posedge clk)
+begin
+	if(physical_resp && state ==  read_from_mem)
+	miss+=1;
+end
+int actual_hits;
+assign actual_hits = hits/2;
+
 always_comb
 begin
 	physical_read = 1'b0;

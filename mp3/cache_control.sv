@@ -48,6 +48,17 @@ begin
 	state = next_state;
 end
 
+int hits = 0;
+int miss = 0;
+int actual_hits;
+always_ff@(negedge clk)
+begin
+	if(pmem_resp & state == read_from_mem)
+	miss+=1;
+	if(mem_resp)
+	hits+=1;
+end
+assign actual_hits = hits-miss;
 
 always_comb
 begin : nextstatetable
