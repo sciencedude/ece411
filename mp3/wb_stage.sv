@@ -4,7 +4,6 @@ module wb_stage
 (
 	input clk, 	
 	input MEM_WB mem_wb,
-	output logic branch_enable,
 	output lc3b_reg dest,
 	output logic load_regfile,
 	output lc3b_word regfile_in,
@@ -13,13 +12,13 @@ module wb_stage
 	output lc3b_word new_pc,
 	output lc3b_word wb_pc,
 	output lc3b_word wb_data,
-	output logic [3:0] mem_wb_destreg
+	output logic [3:0] mem_wb_destreg,
+	output logic flush 
 	
 );
 
 lc3b_nzp gencc_out;
 lc3b_nzp cc_out;
-logic isbr;
 logic branch_enable_out;
 assign new_pc = mem_wb.mem_data;
 
@@ -29,7 +28,7 @@ mux4 cc_mux
 	.a(mem_wb.alu_out),
 	.b(mem_wb.mem_data),
 	.c(mem_wb.pc_out),
-	.d(16'h0),
+	.d(16'h00),
 	.f(regfile_in)
 );
 
@@ -47,13 +46,35 @@ register #(.width(3)) cc
 	.out(cc_out)
 );
 
+
 always_comb
 begin
-	if(mem_wb.intr[15:12] == op_br)
-	isbr = 1'b1;
-	else
-	isbr = 1'b0;
+	flush = 1'b0;
+	pcmux_sel = mem_wb.control_signals.pcmux_sel;
+	case(mem_wb.intr[15:12])
+	op_br:begin
+		if(branch_enable_out == 0 &&(mem_wb.intr[11] == 1 || mem_wb.intr[10] == 1 || mem_wb.intr[9] == 1)) //make sure it's not a nop
+		begin
+		flush = 1'b1;
+		pcmux_sel = 2'b11;
+		end
+	end
+	op_jmp : begin
+		flush = 1'b1;
+	end
+	op_jsr : begin
+		flush = 1'b1;
+	end
+	op_trap : begin 
+		flush = 1'b1;
+	end
+	default:begin
+	
+	end
+	endcase
+
 end
+
 
 cccomp cccomp1
 (
@@ -69,8 +90,6 @@ cccomp cccomp1
 
 assign load_regfile = mem_wb.control_signals.load_regfile;
 assign dest = mem_wb.intr[11:9];
-assign branch_enable = branch_enable_out&isbr; //part of temp fix find better soultion scp
-assign pcmux_sel = mem_wb.control_signals.pcmux_sel;
 assign destmux_sel = mem_wb.control_signals.destmux_sel;
 assign wb_pc = mem_wb.pc_out;
 //assign wb_data = mem_wb.alu_out;

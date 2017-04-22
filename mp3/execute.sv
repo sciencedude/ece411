@@ -122,6 +122,8 @@ assign ex_mem_in.control_signals = id_ex_out.control_signals;
 assign exe_pc = id_ex_out.pc_out;
 assign exe_data = ex_mem_in.alu_out;
 assign ex_mem_in.destreg = id_ex_out.destreg;
+assign ex_mem_in.brpredict = id_ex_out.brpredict;
+
 //assign ex_mem_in.address = ex_mem_in.alu_out;
 
 always_comb

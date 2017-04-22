@@ -311,6 +311,7 @@ end
 
 assign id_ex.pc_out = if_id.pc_out;
 assign id_ex.intr = if_id.intr;
+assign id_ex.brpredict = if_id.brpredict;
 
 register#($bits(id_ex)) id_Ex
 (

@@ -27,7 +27,7 @@ logic mem_resp_d;
 logic mem_resp;
 logic mem_write;
 lc3b_word mem_wdata;
-lc3b_word intr;
+//lc3b_word intr;
 lc3b_word alu_out;
 logic branch_enable, load_regfile;
 lc3b_reg dest;
@@ -82,12 +82,21 @@ logic [3:0] mem_wb_destreg;
 logic [3:0] ex_mem_destreg;
 lc3b_word ex_mem_data;	
 logic load_reg;
+logic flush;
+IF_ID nop_if_id;
+ID_EX nop_id_ex;
+EX_MEM nop_ex_mem;
+IF_ID if_id_mux;
+ID_EX id_ex_mux;
+EX_MEM ex_mem_mux;
+lc3b_word fetchflush_out;
+CONTROL nop_control;
 
 //intialize all the stages in pipeline
-fetch F(.*, .mem_wdata(new_pc), .address(address_i), .intr(instruction));
-decode D(.*);
-execute E(.*,.id_ex_out(id_ex1), .mem_wb_data(regfile_in));
-mem_stage M(.*,.mem_intr ,.ex_mem(ex_mem_out),.address(address_d), .mem_rdata(data));
+fetch F(.*, .mem_wdata(new_pc), .address(address_i), .intr(fetchflush_out));
+decode D(.*,.if_id(if_id_mux));
+execute E(.*,.id_ex_out(id_ex_mux), .mem_wb_data(regfile_in));
+mem_stage M(.*,.mem_intr ,.ex_mem(ex_mem_mux),.address(address_d), .mem_rdata(data));
 wb_stage W(.*, .mem_wb(mem_wb_out));
 
 stall_logic sl
@@ -105,6 +114,65 @@ stall_logic sl
 	.got_intr_in,
 	.got_data_in
 );
+
+assign nop_control.srcamux_sel = 1'b0;
+assign nop_control.srcbmux_sel = 3'b000;
+assign nop_control.aluop = alu_add;
+assign nop_control.marmux_sel = 2'b00;	//change it to zero
+assign nop_control.mdr_mux_sel = 3'b000; //change it to zero
+assign nop_control.cc_mux_sel = 1'b0;
+assign nop_control.load_regfile = 1'b0; //change it to zero
+assign nop_control.load_cc = 1'b0;
+assign nop_control.mem_write = 1'b0;
+assign nop_control.mem_read_d = 1'b0;
+assign nop_control.isI = 1'b0;
+assign nop_control.mem_intr = 1'b0;
+assign nop_control.pcmux_sel = 2'b00;
+assign nop_control.destmux_sel = 1'b0;
+
+assign nop_id_ex.control_signals = nop_control;
+assign nop_ex_mem.control_signals = nop_control;
+
+assign nop_if_id.intr = 16'h0000;
+assign nop_id_ex.intr = 16'h0000;
+assign nop_ex_mem.intr = 16'h0000;
+
+assign nop_id_ex.destreg = 4'b1000;
+assign nop_id_ex.sr1reg = 4'b1000;
+assign nop_id_ex.sr2reg = 4'b1000;
+
+mux2 #(16)fetchflush
+(
+	.sel(flush),
+	.a(instruction),
+	.b(16'h0000),
+	.f(fetchflush_out)
+);
+
+mux2#($bits(IF_ID)) decodeflush
+(
+	.sel(flush),
+	.a(if_id),
+	.b(nop_if_id),
+	.f(if_id_mux)
+);
+
+mux2#($bits(ID_EX)) excuteflush
+(
+	.sel(flush),
+	.a(id_ex1),
+	.b(nop_id_ex),
+	.f(id_ex_mux)
+);
+
+mux2#($bits(EX_MEM)) memflush
+(
+	.sel(flush),
+	.a(ex_mem_out),
+	.b(nop_ex_mem),
+	.f(ex_mem_mux)
+);
+
 
 /*datafwd srcafwd
 (

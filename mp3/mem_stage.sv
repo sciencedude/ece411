@@ -153,6 +153,7 @@ assign mem_wb_in.mem_data = mem_wdata;
 assign mem_wb_in.pc_out = ex_mem.pc_out;
 assign mem_wb_in.alu_out = ex_mem.alu_out;
 assign mem_wb_in.intr = ex_mem.intr;
+assign mem_wb_in.brpredict = ex_mem.brpredict;
 assign mem_wb_in.control_signals = ex_mem.control_signals;
 assign mem_wb_in.destreg = ex_mem.destreg;
 assign isI = ex_mem.control_signals.isI;

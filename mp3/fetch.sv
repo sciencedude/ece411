@@ -10,6 +10,7 @@ module fetch
 	input branch_enable,
 	input [1:0] pcmux_sel,
 	input lc3b_word mem_wdata,
+	input lc3b_word wb_pc,
 	output lc3b_word address,
 	output logic mem_read_i,
 	output IF_ID if_id
@@ -20,6 +21,11 @@ lc3b_word add_out;
 lc3b_word pc_in;
 lc3b_word pc_out;
 lc3b_word branchmux_out;
+lc3b_word adj9_out;
+lc3b_word bradder_out;
+logic branchmux_sel;
+
+
 plus2 add
 (
 	.in(pc_out), //program would branch only for one intr the countie like it didn't branch changed to pc_out scp
@@ -28,9 +34,9 @@ plus2 add
 
 mux2 branchmux
 (
-	.sel(branch_enable),
+	.sel(branchmux_sel),
 	.a(add_out),
-	.b(alu_out),
+	.b(bradder_out),
 	.f(branchmux_out)
 );
 
@@ -40,8 +46,21 @@ mux4 pc_mux
 	.a(branchmux_out),
 	.b(alu_out),
 	.c(mem_wdata),
-	.d(),
+	.d(wb_pc),
 	.f(pc_in)
+);
+
+adj #(.width(9)) adj9
+(
+	.in(intr[8:0]),
+	.out(adj9_out)
+);
+
+adder bradder
+(
+	.a(add_out),
+	.b(adj9_out),
+	.f(bradder_out)
 );
 
 register #(.width(16)) pc
@@ -56,9 +75,37 @@ register #($bits(IF_ID)) IF_ID_OUT
 (
 	.clk,
 	.load(stall),
-	.in({intr,pc_in}),
+	.in({intr,add_out,branchmux_sel}),
 	.out(if_id)
 );
+
+always_comb
+begin
+branchmux_sel = 1'b0;
+
+	case(intr[15:12])
+	op_br:begin
+		if(intr[11] == 1 || intr[10] == 1 || intr[9] == 1)
+		begin
+			branchmux_sel = 1'b1; //branch taken predited
+		end
+	end
+	op_jmp : begin
+	
+	end
+	op_jsr : begin
+	
+	end
+	op_trap : begin 
+	
+	end
+	default:begin
+	
+	end
+	endcase
+
+end
+
 
 assign mem_read_i = stall;
 //assign if_id.intr = intr;

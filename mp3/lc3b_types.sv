@@ -63,6 +63,7 @@ typedef struct packed
 {
 	lc3b_word intr;
 	lc3b_word pc_out;
+	logic brpredict;
 }IF_ID;
 
 /* ID_EX register values */
@@ -76,6 +77,7 @@ typedef struct packed
 	logic [3:0] destreg;
 	logic [3:0] sr1reg;
 	logic [3:0] sr2reg;
+	logic brpredict;
 }ID_EX;
 
 typedef struct packed
@@ -88,6 +90,7 @@ typedef struct packed
 	lc3b_word srcb_out;
 	lc3b_word intr;
 	logic [3:0] destreg;
+	logic brpredict;
 }EX_MEM;
 
 typedef struct packed
@@ -99,6 +102,7 @@ typedef struct packed
 	lc3b_word alu_out;
 	lc3b_word intr;
 	logic [3:0] destreg;
+	logic brpredict;
 }MEM_WB;
 	
 
