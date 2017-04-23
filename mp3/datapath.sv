@@ -8,16 +8,15 @@ module datapath
 	output logic physical_read,
 	output logic physical_write,
 	output logic [127:0] physical_wdata,
-	output logic [15:0] pmem_address
+	output logic [15:0] physical_address
 );
-
+logic [15:0] pmem_address;
 logic pmem_resp;
 logic [127:0] pmem_rdata;
 logic pmem_read;
 logic pmem_read_in;
 logic pmem_write;
 logic [127:0] pmem_wdata;
-assign pmem_rdata = physical_wdata;
 lc3b_word instruction;
 lc3b_word data;
 lc3b_word address_i;
@@ -75,8 +74,6 @@ lc3b_word srcbin_pc;
 lc3b_word exe_data;
 lc3b_word mem_data;
 lc3b_word wb_data;
-lc3b_word srafwd_data;
-lc3b_word srbfwd_data;
 lc3b_word pmem_address_in;
 logic [3:0] mem_wb_destreg;
 logic [3:0] ex_mem_destreg;
@@ -91,6 +88,13 @@ ID_EX id_ex_mux;
 EX_MEM ex_mem_mux;
 lc3b_word fetchflush_out;
 CONTROL nop_control;
+logic ewb_write;
+logic [127:0] ewb_data;
+lc3b_word ewb_address_out, ewb_address, l2_address1;
+logic isEmpty, isReady, load_ewb, l2_evict;
+logic pmem_write_in;
+
+assign pmem_rdata = ewb_data;
 
 //intialize all the stages in pipeline
 fetch F(.*, .mem_wdata(new_pc), .address(address_i), .intr(fetchflush_out));
@@ -172,31 +176,6 @@ mux2#($bits(EX_MEM)) memflush
 	.b(nop_ex_mem),
 	.f(ex_mem_mux)
 );
-
-
-/*datafwd srcafwd
-(
-	.exe_pc,
-	.mem_pc,
-	.wb_pc,
-	.in_pc(srcain_pc),
-	.exe_data,
-	.mem_data,
-	.wb_data,
-	.fwd_data(srafwd_data)	
-);
-
-datafwd srcbfwd
-(
-	.exe_pc,
-	.mem_pc,
-	.wb_pc,
-	.in_pc(srcbin_pc),
-	.exe_data,
-	.mem_data,
-	.wb_data,
-	.fwd_data(srbfwd_data)	
-);*/
 
 register #(1) got_intr
 (
@@ -323,6 +302,14 @@ cache_arbiter CA
 	.found(found)
 );
 
+mux2 #(.width(16)) ewbmux
+(
+	.sel(physical_write),
+	.a(l2_address1),
+	.b(ewb_address),
+	.f(physical_address)
+);
+
 register #(16) address_reg
 (
 	.clk,
@@ -347,6 +334,24 @@ register #(1) pmem_writereg
 	.out(pmem_write)
 );
 
-L2 L2_cache(.*);
+L2 L2_cache
+(
+	.*,
+	.physical_write(ewb_write),
+	.physical_wdata(ewb_data),
+	.physical_address(l2_address1)
+);
+
+EWB EWB_buffer
+(
+	.*,
+	.l2_write(ewb_write),
+	.l2_data(ewb_data),
+	.l2_address(l2_address1),
+	.pmem_resp(physical_resp),
+	.pmem_wdata(physical_wdata),
+	.pmem_write(physical_write),
+	.l2_read(physical_read)
+);
 
 endmodule

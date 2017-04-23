@@ -3,16 +3,19 @@ module L2
 	input logic clk,
 					pmem_read, pmem_write,
 					physical_resp,
+					isEmpty, isReady,
 	input logic [127:0] physical_rdata,
 							  pmem_wdata,
 	input logic [15:0] pmem_address,
 							  
 	output logic physical_read, physical_write,
-					 pmem_resp,
+					 pmem_resp, load_ewb, l2_evict,
+	output logic [15:0] physical_address,
 	
 	output logic [127:0] physical_wdata
 );
 
+logic [2:0] address_mux_sel;
 logic dirty_write_val, wdatamux_sel,
 					data_write0, data_write1, data_write2, data_write3,
 					tag_write0, tag_write1, tag_write2, tag_write3,

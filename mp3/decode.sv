@@ -10,9 +10,7 @@ module decode
 	input logic branch_enable,
 	input logic load_regfile,
 	input lc3b_reg dest,
-	input logic destmux_sel,
-	input lc3b_word srafwd_data,
-	input lc3b_word srbfwd_data,	
+	input logic destmux_sel,	
 	/*output lc3b_word srcain_pc,
 	output lc3b_word srcbin_pc,*/
 	output ID_EX id_ex1
@@ -69,24 +67,6 @@ regfile REGFILE
 	.reg_a(id_ex.srca_out),
 	.reg_b(id_ex.srcb_out)
 );
-
-/*mux2 #(16) reg_a_mux
-(
-	.sel(reg_a_sel),
-	.a(reg_a),
-	.b(srafwd_data),
-	.f(id_ex.srca_out)
-);
-
-mux2 #(16) reg_b_mux
-(
-	.sel(reg_b_sel),
-	.a(reg_b),
-	.b(srbfwd_data),
-	.f(id_ex.srcb_out)
-);*/
-
-
 
 always_comb
 begin

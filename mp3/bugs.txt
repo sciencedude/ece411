@@ -1,0 +1,6 @@
+L2_cache_datapath: 61
+	magic incorrect, not evicting correctly
+	only based on hits, auto selects data_out0
+
+l2_cache_control: 125
+	logic incorrect, not maintaining ranks

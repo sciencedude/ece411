@@ -9,7 +9,7 @@ logic [127:0] physical_rdata;
 logic physical_read;
 logic physical_write;
 logic [127:0] physical_wdata;
-logic [15:0] pmem_address;
+logic [15:0] physical_address;
 /* Clock generator */
 initial clk = 0;
 always #5 clk = ~clk;
@@ -24,7 +24,7 @@ physical_memory p_0
 	.clk,
 	.read(physical_read),
 	.write(physical_write),
-	.address(pmem_address),
+	.address(physical_address),
 	.wdata(physical_wdata),
 	.resp(physical_resp),
 	.rdata(physical_rdata)
