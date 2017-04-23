@@ -18,6 +18,7 @@ module cache
 	output logic pmem_write,
 	output logic [127:0] pmem_wdata,
 	output logic [15:0] pmem_address,
+	output logic [15:0] actual_hits, miss,
 	output logic found
 );
 

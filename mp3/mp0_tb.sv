@@ -10,6 +10,7 @@ logic physical_read;
 logic physical_write;
 logic [127:0] physical_wdata;
 logic [15:0] physical_address;
+logic [15:0] out;
 /* Clock generator */
 initial clk = 0;
 always #5 clk = ~clk;

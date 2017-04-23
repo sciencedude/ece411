@@ -8,7 +8,8 @@ module datapath
 	output logic physical_read,
 	output logic physical_write,
 	output logic [127:0] physical_wdata,
-	output logic [15:0] physical_address
+	output logic [15:0] physical_address,
+	output logic [15:0] out
 );
 logic [15:0] pmem_address;
 logic pmem_resp;
@@ -99,7 +100,8 @@ lc3b_word br_count_in;
 lc3b_word br_count_out;
 lc3b_word brmiss_count_in;
 lc3b_word brmiss_count_out;
-
+logic read_mux2_sel;
+logic [15:0] hits_i, miss_i, hits_d, miss_d, hits_l2, miss_l2;
 assign pmem_rdata = ewb_data;
 
 //intialize all the stages in pipeline
@@ -204,7 +206,7 @@ register #(1) got_data
 
 mux2 #(1) readmux
 (
-	.sel(got_data_out),
+	.sel(got_data_out | read_mux2_sel),
 	.a(mem_read_d),
 	.b(1'b0),
 	.f(readmux_out)
@@ -258,6 +260,8 @@ cache I_cache
 	.pmem_write(pmem_writei),
 	.pmem_wdata(pmem_wdatai),
 	.pmem_address(pmem_addressi),
+	.actual_hits(hits_i),
+	.miss(miss_i),
 	.found(found_i)
 );
 
@@ -278,8 +282,24 @@ cache D_cache
 	.pmem_write(pmem_writed),
 	.pmem_wdata(pmem_wdatad),
 	.pmem_address(pmem_addressd),
+	.actual_hits(hits_d),
+	.miss(miss_d),
 	.found(found_d)
 );
+
+IO I1
+(
+	.hits_i,
+	.hits_d,
+	.hits_l2,
+	.miss_i,
+	.miss_d,
+	.miss_l2,
+	.address_d,
+	.read_mux2_sel,
+	.out
+);
+
 
 
 mux2#(1) hit
@@ -370,7 +390,9 @@ L2 L2_cache
 	.*,
 	.physical_write(ewb_write),
 	.physical_wdata(ewb_data),
-	.physical_address(l2_address1)
+	.physical_address(l2_address1),
+	.actual_hits(hits_l2),
+	.miss(miss_l2)
 );
 
 EWB EWB_buffer
