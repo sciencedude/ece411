@@ -26,6 +26,7 @@ output logic dirty_write,
 output logic pmem_read,
 output logic pmem_write,
 output logic write_mux_sel,
+output logic [15:0] actual_hits, miss,
 output logic addrmux_sel
 );
 
@@ -48,9 +49,7 @@ begin
 	state = next_state;
 end
 
-int hits = 0;
-int miss = 0;
-int actual_hits;
+logic [15:0] hits = 0;
 always_ff@(negedge clk)
 begin
 	if(pmem_resp & state == read_from_mem)

@@ -17,6 +17,7 @@ module L2_control
 					 pmem_resp,
 	
 	output logic [2:0] address_mux_sel,
+	output logic [15:0] miss, actual_hits,
 					 
 	output logic dirty_write_val, wdatamux_sel,
 					 data_write0, data_write1, data_write2, data_write3,
@@ -60,8 +61,7 @@ begin
 	endcase
 end
 
-int hits = 0;
-int miss = 0;
+logic [15:0] hits = 0;
 always_ff @(posedge clk)
 begin
 	if(pmem_read & hit)
@@ -72,7 +72,6 @@ begin
 	if(physical_resp && state ==  read_from_mem)
 	miss+=1;
 end
-int actual_hits;
 assign actual_hits = hits/2;
 
 always_comb

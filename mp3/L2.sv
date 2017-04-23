@@ -11,7 +11,7 @@ module L2
 	output logic physical_read, physical_write,
 					 pmem_resp, load_ewb, l2_evict,
 	output logic [15:0] physical_address,
-	
+	output logic [15:0] miss, actual_hits,	
 	output logic [127:0] physical_wdata
 );
 
