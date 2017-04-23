@@ -11,6 +11,8 @@ module fetch
 	input [1:0] pcmux_sel,
 	input lc3b_word mem_wdata,
 	input lc3b_word wb_pc,
+	input lc3b_word br_count_out,
+	output lc3b_word br_count_in,
 	output lc3b_word address,
 	output logic mem_read_i,
 	output IF_ID if_id
@@ -82,12 +84,14 @@ register #($bits(IF_ID)) IF_ID_OUT
 always_comb
 begin
 branchmux_sel = 1'b0;
+br_count_in = br_count_out;
 
 	case(intr[15:12])
 	op_br:begin
 		if(intr[11] == 1 || intr[10] == 1 || intr[9] == 1)
 		begin
 			branchmux_sel = 1'b1; //branch taken predited
+			br_count_in = br_count_out+1;
 		end
 	end
 	op_jmp : begin

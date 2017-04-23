@@ -4,6 +4,8 @@ module wb_stage
 (
 	input clk, 	
 	input MEM_WB mem_wb,
+	input lc3b_word brmiss_count_out,
+	output lc3b_word brmiss_count_in,
 	output lc3b_reg dest,
 	output logic load_regfile,
 	output lc3b_word regfile_in,
@@ -51,12 +53,14 @@ always_comb
 begin
 	flush = 1'b0;
 	pcmux_sel = mem_wb.control_signals.pcmux_sel;
+	brmiss_count_in = brmiss_count_out;
 	case(mem_wb.intr[15:12])
 	op_br:begin
 		if(branch_enable_out == 0 &&(mem_wb.intr[11] == 1 || mem_wb.intr[10] == 1 || mem_wb.intr[9] == 1)) //make sure it's not a nop
 		begin
 		flush = 1'b1;
 		pcmux_sel = 2'b11;
+		brmiss_count_in = brmiss_count_out+1;
 		end
 	end
 	op_jmp : begin

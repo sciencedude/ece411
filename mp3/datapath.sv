@@ -93,6 +93,12 @@ logic [127:0] ewb_data;
 lc3b_word ewb_address_out, ewb_address, l2_address1;
 logic isEmpty, isReady, load_ewb, l2_evict;
 logic pmem_write_in;
+lc3b_word stall_count_in;
+lc3b_word stall_count_out;
+lc3b_word br_count_in;
+lc3b_word br_count_out;
+lc3b_word brmiss_count_in;
+lc3b_word brmiss_count_out;
 
 assign pmem_rdata = ewb_data;
 
@@ -107,8 +113,11 @@ stall_logic sl
 (
 	.mem_resp_i,
 	.mem_resp_d,
+	.mem_adderres(address_d),
 	.got_intr_out,
 	.got_data_out,
+	.stall_count_in,
+	.stall_count_out,
 	.stall,
 	.state,
 	.isI,
@@ -209,7 +218,29 @@ mux2 #(1) writemux
 	.f(writemux_out)
 );
 
+register #(16) stall_count
+(
+	.clk,
+	.in(stall_count_in),
+	.load(stall),
+	.out(stall_count_out)
+);
 
+register #(16) br_count
+(
+	.clk,
+	.in(br_count_in),
+	.load(stall),
+	.out(br_count_out)
+);
+
+register #(16) brmis_count
+(
+	.clk,
+	.in(brmiss_count_in),
+	.load(stall),
+	.out(brmiss_count_out)
+);
 
 cache I_cache
 (
