@@ -102,6 +102,7 @@ lc3b_word brmiss_count_in;
 lc3b_word brmiss_count_out;
 logic read_mux2_sel;
 logic [15:0] hits_i, miss_i, hits_d, miss_d, hits_l2, miss_l2;
+logic reset_l2hits, reset_l2miss, reset_dmiss, reset_dhits, reset_imiss, reset_ihits;
 assign pmem_rdata = ewb_data;
 
 //intialize all the stages in pipeline
@@ -262,6 +263,8 @@ cache I_cache
 	.pmem_address(pmem_addressi),
 	.actual_hits(hits_i),
 	.miss(miss_i),
+	.reset_hits(reset_ihits),
+	.reset_miss(reset_imiss),
 	.found(found_i)
 );
 
@@ -284,11 +287,15 @@ cache D_cache
 	.pmem_address(pmem_addressd),
 	.actual_hits(hits_d),
 	.miss(miss_d),
+	.reset_hits(reset_dhits),
+	.reset_miss(reset_dmiss),
 	.found(found_d)
 );
 
 IO I1
 (
+	.*,
+	.mem_write(writemux_out),
 	.hits_i,
 	.hits_d,
 	.hits_l2,

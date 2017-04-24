@@ -4,6 +4,7 @@ module L2
 					pmem_read, pmem_write,
 					physical_resp,
 					isEmpty, isReady,
+					reset_l2hits, reset_l2miss,
 	input logic [127:0] physical_rdata,
 							  pmem_wdata,
 	input logic [15:0] pmem_address,

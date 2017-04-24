@@ -8,7 +8,7 @@ input logic dirty,
 input logic pmem_resp,
 input logic found,
 input logic cout_1, cout_2,
-
+input logic reset_hits, reset_miss,
 
 output logic mem_resp,
 output logic [8:0] tag,
@@ -50,11 +50,19 @@ begin
 end
 
 logic [15:0] hits = 0;
-always_ff@(negedge clk)
+
+always_ff@(negedge clk or posedge reset_miss)
 begin
-	if(pmem_resp & state == read_from_mem)
+	if(reset_miss)
+	miss <= 0;
+	else if(pmem_resp & state == read_from_mem)
 	miss+=1;
-	if(mem_resp)
+end
+always_ff@(negedge clk or posedge reset_hits)
+begin
+	if(reset_hits)
+	hits <= 0;
+	else if(mem_resp)
 	hits+=1;
 end
 assign actual_hits = hits-miss;

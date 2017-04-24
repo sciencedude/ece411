@@ -9,6 +9,8 @@ module L2_control
 					dirty_out0, dirty_out1, dirty_out2, dirty_out3,
       			hit0, hit1, hit2, hit3, hit,
 					isEmpty, isReady,
+	
+	input logic reset_l2hits, reset_l2miss,
 					
 	input	logic [1:0] LRU_out0, LRU_out1, LRU_out2, LRU_out3,
 	
@@ -62,14 +64,18 @@ begin
 end
 
 logic [15:0] hits = 0;
-always_ff @(posedge clk)
+always_ff @(posedge clk or posedge reset_l2hits)
 begin
-	if(pmem_read & hit)
+	if(reset_l2hits)
+	hits <= 0;
+	else if(pmem_read & hit)
 	hits+=1;
 end
-always_ff @(posedge clk)
+always_ff @(posedge clk or posedge reset_l2miss)
 begin
-	if(physical_resp && state ==  read_from_mem)
+	if(reset_l2miss)
+	miss <= 0;
+	else if(physical_resp && state ==  read_from_mem)
 	miss+=1;
 end
 assign actual_hits = hits/2;

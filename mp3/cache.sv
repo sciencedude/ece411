@@ -8,7 +8,7 @@ module cache
 	input logic [1:0] mem_byte_enable,
 	input logic pmem_resp,
 	input logic [127:0] pmem_rdata,
-	
+	input logic reset_hits, reset_miss,
 	
 	
 	
