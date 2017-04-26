@@ -104,7 +104,9 @@ logic read_mux2_sel;
 logic [15:0] hits_i, miss_i, hits_d, miss_d, hits_l2, miss_l2;
 logic reset_l2hits, reset_l2miss, reset_dmiss, reset_dhits, reset_imiss, reset_ihits;
 assign pmem_rdata = ewb_data;
-assign Nop_ex_mem = 16'h0000;
+assign nop_ex_mem = 0;
+assign nop_id_ex = 0;
+assign nop_if_id = 0;
 //intialize all the stages in pipeline
 fetch F(.*, .mem_wdata(new_pc), .address(address_i), .intr(fetchflush_out));
 decode D(.*,.if_id(if_id_mux));
@@ -145,17 +147,17 @@ assign nop_control.isI = 1'b0;
 assign nop_control.mem_intr = 1'b0;
 assign nop_control.pcmux_sel = 2'b00;
 assign nop_control.destmux_sel = 1'b0;
-
-assign nop_id_ex.control_signals = nop_control;
-assign nop_ex_mem.control_signals = nop_control;
-
-assign nop_if_id.intr = 16'h0000;
-assign nop_id_ex.intr = 16'h0000;
-assign nop_ex_mem.intr = 16'h0000;
-
-assign nop_id_ex.destreg = 4'b1000;
-assign nop_id_ex.sr1reg = 4'b1000;
-assign nop_id_ex.sr2reg = 4'b1000;
+//
+//assign nop_id_ex.control_signals = nop_control;
+//assign nop_ex_mem.control_signals = nop_control;
+//
+//assign nop_if_id.intr = 16'h0000;
+//assign nop_id_ex.intr = 16'h0000;
+//assign nop_ex_mem.intr = 16'h0000;
+//
+//assign nop_id_ex.destreg = 4'b1000;
+//assign nop_id_ex.sr1reg = 4'b1000;
+//assign nop_id_ex.sr2reg = 4'b1000;
 
 mux2 #(16)fetchflush
 (

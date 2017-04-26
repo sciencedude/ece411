@@ -154,16 +154,15 @@ assign mem_wb_in.pc_out = ex_mem.pc_out;
 assign mem_wb_in.alu_out = ex_mem.alu_out;
 assign mem_wb_in.intr = ex_mem.intr;
 assign mem_wb_in.brpredict = ex_mem.brpredict;
-//assign mem_wb_in.control_signals = ex_mem.control_signals;
+assign mem_wb_in.control_signals = ex_mem.control_signals;
 //logic r;
-/*
-always_comb
-begin
-mem_wb_in.control_signals = ex_mem.control_signals;
-if(address >= 16'hfff0) //&& address != 16'hxxxx)
-mem_wb_in.control_signals.load_regfile = 1'b0;
-end
-*/ //uncomment this to make IO work properly
+//always_comb
+//begin
+//mem_wb_in.control_signals = ex_mem.control_signals;
+//if(address >= 16'hfff0) //&& address != 16'hxxxx)
+//mem_wb_in.control_signals.load_regfile = 1'b0;
+//end
+//uncomment this to make IO work properly
 assign mem_wb_in.destreg = ex_mem.destreg;
 assign isI = ex_mem.control_signals.isI;
 assign mem_intr = ex_mem.control_signals.mem_intr;
