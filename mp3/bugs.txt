@@ -12,7 +12,7 @@ EWB
 	-Use write siganl to load EWB.
 
 
-	-L2 does weird read at 38854ns
+	-L2 does weird read at 38854ns:: (fix) readwrite -> readfrommem -> writetomem. NOT GOOD TRANSITION. Should be able to get to writetomem from readwrite.
 
 	-IO actualhits not correct values
 
