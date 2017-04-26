@@ -43,9 +43,7 @@ end
 
 
 enum int unsigned {
-idle,
-read,
-write,
+read_write,
 read_from_mem,
 write_to_mem
 } state, next_state;
@@ -73,39 +71,19 @@ always_comb
 begin : nextstatetable
 
 	next_state = state;
-
+	
 	case(state)
-		
-		idle : begin
-			if(mem_read)
-			next_state = read;
-			else if(mem_write)
-			next_state = write;
-		end
-		
-		
-		read : begin
-			if(found)
-			next_state = idle;
-			
-			else
-			next_state = read_from_mem;
-		end
-		
-		write : begin
-			if(found)
-			next_state = idle;
-			else
+	
+		read_write : begin
+			if(~found & (mem_read|mem_write))
 			next_state = read_from_mem;
 		end
 		
 		read_from_mem: begin
 			if((~cout_1 | ~cout_2) & dirty)
 			next_state = write_to_mem;
-			else if(pmem_resp && mem_read)
-			next_state = read;
-			else if (pmem_resp && mem_write)
-			next_state = write;
+			else if(pmem_resp && (mem_read || mem_write))
+			next_state = read_write;
 		end
 		
 		write_to_mem: begin
@@ -139,25 +117,21 @@ begin
 	
 	case(state)
 	
-	idle: ;
-	
-	read: begin
+	read_write: begin
+			if(mem_read)	begin
 			LRU_write = 1;
 			mem_resp = found;
 			end
-	
-	write:	begin
-					if(~cout_1 & ~cout_2)	begin
-					end
-					else	begin
+			else if((cout_1 | cout_2) & mem_write)	begin
 					data_write = 1'b1;
 					dirty_write = 1'b1;
 					dirty_write_val = 1'b1;
 					LRU_write = 1'b1;
 					mem_resp = found;
 					write_mux_sel = 1'b1;
-					end
 				end
+			
+			end
 				
 	read_from_mem: begin
 							if((~cout_1 | ~cout_2) & dirty)	begin
