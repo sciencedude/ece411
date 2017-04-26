@@ -4,3 +4,16 @@ L2_cache_datapath: 61
 
 l2_cache_control: 125
 	logic incorrect, not maintaining ranks
+
+
+4/26/17
+EWB
+	-Make it invisible to L2. Make EWB have same signals read, write, resp, wdata.
+	-Use write siganl to load EWB.
+
+
+	-L2 does weird read at 38854ns:: (fix) readwrite -> readfrommem -> writetomem. NOT GOOD TRANSITION. Should be able to get to writetomem from readwrite.
+
+	-IO actualhits not correct values
+
+	
