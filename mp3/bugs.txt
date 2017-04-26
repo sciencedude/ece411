@@ -13,3 +13,7 @@ EWB
 
 
 	-L2 does weird read at 38854ns
+
+	-IO actualhits not correct values
+
+	
