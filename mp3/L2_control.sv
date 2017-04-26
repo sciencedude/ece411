@@ -62,21 +62,22 @@ begin
 								next_state = read_from_mem;
 	endcase
 end
-
-logic [15:0] hits = 0;
-always_ff @(posedge clk or posedge reset_l2hits)
+logic [15:0] hits;
+initial
+ begin
+miss = 16'h0;
+hits = 16'h0;
+end
+always_ff @(posedge clk or posedge reset_l2miss or posedge reset_l2hits)
 begin
 	if(reset_l2hits)
 	hits <= 0;
-	else if(pmem_read & hit)
-	hits+=1;
-end
-always_ff @(posedge clk or posedge reset_l2miss)
-begin
-	if(reset_l2miss)
+	else if(reset_l2miss)
 	miss <= 0;
 	else if(physical_resp && state ==  read_from_mem)
 	miss+=1;
+	else if(pmem_read & hit)
+	hits+=1;
 end
 assign actual_hits = hits/2;
 

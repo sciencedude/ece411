@@ -35,6 +35,13 @@ assign tag = mem_address[15:7];
 assign set = mem_address[6:4];
 assign offset = mem_address[3:1];
 
+initial
+begin
+miss = 16'h0;
+actual_hits = 16'h0;
+end
+
+
 enum int unsigned {
 idle,
 read,
@@ -49,23 +56,18 @@ begin
 	state = next_state;
 end
 
-logic [15:0] hits = 0;
 
-always_ff@(negedge clk or posedge reset_miss)
+always_ff@(negedge clk or posedge reset_miss or posedge reset_hits)
 begin
 	if(reset_miss)
 	miss <= 0;
+	else if(reset_hits)
+	actual_hits <= 0;
 	else if(pmem_resp & state == read_from_mem)
 	miss+=1;
-end
-always_ff@(negedge clk or posedge reset_hits)
-begin
-	if(reset_hits)
-	hits <= 0;
 	else if(mem_resp)
-	hits+=1;
+	actual_hits+=1;
 end
-assign actual_hits = hits-miss;
 
 always_comb
 begin : nextstatetable

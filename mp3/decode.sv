@@ -10,7 +10,8 @@ module decode
 	input logic branch_enable,
 	input logic load_regfile,
 	input lc3b_reg dest,
-	input logic destmux_sel,	
+	input logic destmux_sel,
+	input logic read_mux2_sel,
 	/*output lc3b_word srcain_pc,
 	output lc3b_word srcbin_pc,*/
 	output ID_EX id_ex1
@@ -59,7 +60,7 @@ mux2 #(.width(3)) destmux
 regfile REGFILE
 (
 	.clk,
-	.load(load_regfile),
+	.load(load_regfile), //& ~read_mux2_sel),
 	.in(regfile_in),
 	.src_a,
 	.src_b,

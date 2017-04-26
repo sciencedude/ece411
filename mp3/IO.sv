@@ -36,7 +36,7 @@ always_comb
 begin
 	read_mux2_sel = 1'b0;
 	if(address_d >= 16'hFFF0)	begin
-	IO_mux_sel = address_d[15:1] - 15'h7FF6;
+	IO_mux_sel = address_d[15:1] - 15'h7FF7;
 	read_mux2_sel = 1'b1;
 	end
 	else
