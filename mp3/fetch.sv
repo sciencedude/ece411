@@ -12,6 +12,7 @@ module fetch
 	input lc3b_word mem_wdata,
 	input lc3b_word wb_pc,
 	input lc3b_word br_count_out,
+	input logic [1:0] bht_out,
 	output lc3b_word br_count_in,
 	output lc3b_word address,
 	output logic mem_read_i,
@@ -90,7 +91,21 @@ br_count_in = br_count_out;
 	op_br:begin
 		if(intr[11] == 1 || intr[10] == 1 || intr[9] == 1)
 		begin
-			branchmux_sel = 1'b1; //branch taken predited
+			case(bht_out)
+			2'b00:begin
+				branchmux_sel = 1'b0;
+			end
+			2'b01:begin
+				branchmux_sel = 1'b0;
+			end
+			2'b10:begin
+				branchmux_sel = 1'b1;
+			end
+			2'b11:begin
+				branchmux_sel = 1'b1;
+			end
+		endcase
+		   //branch taken predited
 			br_count_in = br_count_out+1;
 		end
 	end

@@ -107,12 +107,34 @@ assign pmem_rdata = ewb_data;
 assign nop_ex_mem = 0;
 assign nop_id_ex = 0;
 assign nop_if_id = 0;
+logic brhistory_in;
+logic brhistory_load;
+logic [2:0]brhistory_out;
+logic [1:0] bht_in;
+logic [1:0] bht_out;
 //intialize all the stages in pipeline
 fetch F(.*, .mem_wdata(new_pc), .address(address_i), .intr(fetchflush_out));
 decode D(.*,.if_id(if_id_mux));
 execute E(.*,.id_ex_out(id_ex_mux), .mem_wb_data(regfile_in));
 mem_stage M(.*,.mem_intr ,.ex_mem(ex_mem_mux),.address(address_d), .mem_rdata(data));
 wb_stage W(.*, .mem_wb(mem_wb_out));
+
+shiftregister#(3) brhistory
+(
+	.clk,
+	.in(brhistory_in),
+	.load(brhistory_load),
+	.out(brhistory_out)
+);
+
+array #(2) bht
+(
+	.clk,
+	.address(brhistory_out),
+	.w_data(bht_in),
+	.write(brhistory_load),
+	.r_data(bht_out)
+);
 
 stall_logic sl
 (

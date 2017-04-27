@@ -5,6 +5,7 @@ module poniter
 	input isI,
 	input mem_resp,
 	input state,
+	input lc3b_word mem_adderres,
 	output logic marmux_sel, loadPtr,
 					loadst,
 					rwmux_sel,
@@ -39,7 +40,7 @@ begin
 		write = 1'b0;
 		loadst = 1'b0;
 		stin =1'b0;
-		if(mem_resp == 1)
+		if(mem_resp == 1 || mem_adderres >= 16'hfff0)
 		begin
 			loadst = 1'b1; //sets state to 0 after we finshed the interstion
 		end
