@@ -45,8 +45,11 @@ always_comb
 begin
 	next_state = state;
 	case(state)
-		read_write: if(~hit & (pmem_read | pmem_write))
+		read_write: begin
+							if(~hit & (pmem_read | pmem_write))
 							next_state = read_from_mem;
+//							if()
+						end
 		read_from_mem : begin
 								if((dirty_out0 && LRU_out0 == 3) | (dirty_out1 && LRU_out1 == 3) | (dirty_out2 && LRU_out2 == 3) | (dirty_out3 && LRU_out3 == 3))
 								begin
@@ -172,11 +175,11 @@ begin
 								load_ewb = 1'b1;
 							if(LRU_out0 == 3)
 								dirty_write0 = 1'b1;
-							if(LRU_out1 == 3)
+							else if(LRU_out1 == 3)
 								dirty_write1 = 1'b1;
-							if(LRU_out2 == 3)
+							else if(LRU_out2 == 3)
 								dirty_write2 = 1'b1;
-							if(LRU_out3 == 3)
+							else if(LRU_out3 == 3)
 								dirty_write3 = 1'b1;
 							dirty_write_val = 1'b0;
 							address_mux_sel = {1'b0,add};

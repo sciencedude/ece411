@@ -54,15 +54,16 @@ begin
 	state = next_state;
 end
 
-
-always_ff@(negedge clk or posedge reset_miss or posedge reset_hits)
+logic miss_logic;
+assign miss_logic = pmem_resp & state == read_from_mem;
+always_ff@(posedge clk or posedge reset_miss or posedge reset_hits)
 begin
 	if(reset_miss)
 	miss <= 0;
 	else if(reset_hits)
 	actual_hits <= 0;
-	else if(pmem_resp & state == read_from_mem)
-	miss+=1;
+	else if(miss_logic)
+	miss<= miss+1;
 	else if(mem_resp)
 	actual_hits+=1;
 end
