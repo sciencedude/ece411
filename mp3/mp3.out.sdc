@@ -19,7 +19,7 @@
 ## PROGRAM "Quartus II"
 ## VERSION "Version 13.1.4 Build 182 03/12/2014 SJ Full Version"
 
-## DATE    "Thu Apr 27 03:40:03 2017"
+## DATE    "Fri Apr 28 01:26:58 2017"
 
 ##
 ## DEVICE  "EP3SE50F780C2"
@@ -38,7 +38,7 @@ set_time_format -unit ns -decimal_places 3
 # Create Clock
 #**************************************************************
 
-create_clock -name {clk} -period 16.000 -waveform { 0.000 8.000 } [get_ports {clk}]
+create_clock -name {clk} -period 8.000 -waveform { 0.000 4.000 } [get_ports {clk}]
 
 
 #**************************************************************
@@ -383,6 +383,7 @@ set_output_delay -add_delay  -clock [get_clocks {clk}]  0.000 [get_ports {physic
 # Set Multicycle Path
 #**************************************************************
 
+set_multicycle_path -setup -end -from [get_clocks {clk}] -to [get_ports {physical_address[0] physical_address[1] physical_address[2] physical_address[3] physical_address[4] physical_address[5] physical_address[6] physical_address[7] physical_address[8] physical_address[9] physical_address[10] physical_address[11] physical_address[12] physical_address[13] physical_address[14] physical_address[15]}] 4
 
 
 #**************************************************************

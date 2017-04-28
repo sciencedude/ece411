@@ -6,13 +6,10 @@ module shiftregister #(parameter width = 16)
     output logic [width-1:0] out
 );
 
-shiftregister#(width) brhistory
-(
-	.clk,
-	.in({ [out[width-2:0],in}),
-	.load,
-	.out
-);
-
+always_ff@(posedge clk)
+begin
+if(load)
+out = {out[width-2:0], in};
+end
 
 endmodule : shiftregister

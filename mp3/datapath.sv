@@ -119,22 +119,22 @@ execute E(.*,.id_ex_out(id_ex_mux), .mem_wb_data(regfile_in));
 mem_stage M(.*,.mem_intr ,.ex_mem(ex_mem_mux),.address(address_d), .mem_rdata(data));
 wb_stage W(.*, .mem_wb(mem_wb_out));
 
-shiftregister#(3) brhistory
-(
-	.clk,
-	.in(brhistory_in),
-	.load(brhistory_load),
-	.out(brhistory_out)
-);
-
-array #(2) bht
-(
-	.clk,
-	.address(brhistory_out),
-	.w_data(bht_in),
-	.write(brhistory_load),
-	.r_data(bht_out)
-);
+//shiftregister#(3) brhistory
+//(
+//	.clk,
+//	.in(brhistory_in),
+//	.load(brhistory_load),
+//	.out(brhistory_out)
+//);
+//
+//array #(2) bht
+//(
+//	.clk,
+//	.address(brhistory_out),
+//	.w_data(bht_in),
+//	.write(brhistory_load),
+//	.r_data(bht_out)
+//);
 
 stall_logic sl
 (
