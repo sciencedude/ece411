@@ -112,6 +112,7 @@ logic brhistory_load;
 logic [2:0]brhistory_out;
 logic [1:0] bht_in;
 logic [1:0] bht_out;
+logic [15:0] IO_address;
 //intialize all the stages in pipeline
 fetch F(.*, .mem_wdata(new_pc), .address(address_i), .intr(fetchflush_out));
 decode D(.*,.if_id(if_id_mux));
@@ -316,6 +317,14 @@ cache D_cache
 	.found(found_d)
 );
 
+register #(16) IO_a
+(
+	.in(address_d),
+	.load(1'b1),
+	.clk,
+	.out(IO_address)
+);
+
 IO I1
 (
 	.*,
@@ -326,7 +335,7 @@ IO I1
 	.miss_i,
 	.miss_d,
 	.miss_l2,
-	.address_d,
+	.address_d(IO_address),
 	.read_mux2_sel,
 	.out
 );

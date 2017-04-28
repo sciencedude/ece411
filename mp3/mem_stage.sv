@@ -162,7 +162,7 @@ mem_wb_in.control_signals = ex_mem.control_signals;
 if(address >= 16'hfff0 && (mem_read_d || mem_write)) //&& address != 16'hxxxx)
 mem_wb_in.control_signals.load_regfile = 1'b0;
 end
-//uncomment this to make IO work properly
+
 assign mem_wb_in.destreg = ex_mem.destreg;
 assign isI = ex_mem.control_signals.isI;
 assign mem_intr = ex_mem.control_signals.mem_intr;

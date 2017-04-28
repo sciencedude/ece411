@@ -48,6 +48,13 @@ begin
 		read_write: begin
 							if(~hit & (pmem_read | pmem_write))
 							next_state = read_from_mem;
+							else if((dirty_out0 && LRU_out0 == 3) | (dirty_out1 && LRU_out1 == 3) | (dirty_out2 && LRU_out2 == 3) | (dirty_out3 && LRU_out3 == 3))
+								begin
+									if(isEmpty)
+										next_state = write_to_mem;
+									else
+										next_state = read_from_mem;
+								end
 //							if()
 						end
 		read_from_mem : begin
