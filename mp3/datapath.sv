@@ -112,11 +112,13 @@ logic [2:0]brhistory_out;
 logic [1:0] bht_in;
 logic [1:0] bht_out;
 logic [15:0] IO_address;
+logic [15:0] memstage_readmuxout;
+logic IOornot;
 //intialize all the stages in pipeline
 fetch F(.*, .mem_wdata(new_pc), .address(address_i), .intr(fetchflush_out));
 decode D(.*,.if_id(if_id_mux));
 execute E(.*,.id_ex_out(id_ex_mux), .mem_wb_data(regfile_in));
-mem_stage M(.*,.mem_intr ,.ex_mem(ex_mem_mux),.address(address_d), .mem_rdata(data));
+mem_stage M(.*,.mem_intr ,.ex_mem(ex_mem_mux),.address(address_d), .mem_rdata(memstage_readmuxout));
 wb_stage W(.*, .mem_wb(mem_wb_out));
 
 shiftregister#(3) brhistory
@@ -316,6 +318,14 @@ cache D_cache
 	.found(found_d)
 );
 
+mux2 #(16) memstage_readmux
+(
+	.sel(IOornot),
+	.a(data),
+	.b(out),
+	.f(memstage_readmuxout)
+);
+
 register #(16) IO_a
 (
 	.in(address_d),
@@ -445,5 +455,13 @@ EWB EWB_buffer
 	.pmem_write(physical_write),
 	.l2_read(physical_read)
 );
+
+always_comb
+begin
+	if(address_d >= 16'hfff0)
+	IOornot = 1;
+	else
+	IOornot = 0;
+end
 
 endmodule

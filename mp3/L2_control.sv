@@ -18,7 +18,8 @@ module L2_control
 					 physical_write,
 					 pmem_resp,
 	
-	output logic [2:0] address_mux_sel, pwdatamux_sel,
+	output logic [2:0] address_mux_sel,
+	output logic [1:0] pwdatamux_sel,
 	output logic [15:0] miss, actual_hits,
 					 
 	output logic dirty_write_val, wdatamux_sel,
@@ -27,7 +28,8 @@ module L2_control
 					 valid_write0, valid_write1, valid_write2, valid_write3,
 					 dirty_write0, dirty_write1, dirty_write2, dirty_write3,
 					 LRU_write0, LRU_write1, LRU_write2, LRU_write3,
-					 load_ewb, l2_evict
+					 load_ewb, l2_evict,
+					 reset0,reset1,reset2,reset3
 );
 
 enum int unsigned {read_write, read_from_mem, write_to_mem} state, next_state;
@@ -110,7 +112,10 @@ begin
 	load_ewb = 1'b0;
 	address_mux_sel = 3'h4;
 	pwdatamux_sel = 2'b00;
-	
+	reset0 = 1'b0;
+	reset1 = 1'b0;
+	reset2 = 1'b0;
+	reset3 = 1'b0;
 	
 	case(state)
 	read_write: begin
@@ -130,13 +135,17 @@ begin
 						if(hit &(pmem_read|pmem_write))	
 						begin
 							if(((LRU_out0<=LRU_out1)&&hit1)||((LRU_out0<=LRU_out2)&&hit2)||((LRU_out0<=LRU_out3)&&hit3))
-								LRU_write0 = 1'b1;
+								LRU_write0 <= 1'b1;
 							if(((LRU_out1<=LRU_out0)&&hit0)||((LRU_out1<=LRU_out2)&&hit2)||((LRU_out1<=LRU_out3)&&hit3))
-								LRU_write1 = 1'b1;
+								LRU_write1 <= 1'b1;
 							if(((LRU_out2<=LRU_out1)&&hit1)||((LRU_out2<=LRU_out0)&&hit0)||((LRU_out2<=LRU_out3)&&hit3))
-								LRU_write2 = 1'b1;
+								LRU_write2 <= 1'b1;
 							if(((LRU_out3<=LRU_out1)&&hit1)||((LRU_out3<=LRU_out2)&&hit2)||((LRU_out3<=LRU_out0)&&hit0))
-								LRU_write3 = 1'b1;
+								LRU_write3 <= 1'b1;
+							reset0 = hit0;
+							reset1 = hit1;
+							reset2 = hit2;
+							reset3 = hit3;
 						end
 					end
 	read_from_mem : begin

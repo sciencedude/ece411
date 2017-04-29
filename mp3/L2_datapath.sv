@@ -9,7 +9,9 @@ module L2_datapath
 					valid_write0, valid_write1, valid_write2, valid_write3,
 					dirty_write0, dirty_write1, dirty_write2, dirty_write3,
 					LRU_write0, LRU_write1, LRU_write2, LRU_write3,
-	input logic [2:0] address_mux_sel, pwdatamux_sel,
+					reset0,reset1,reset2,reset3,
+	input logic [2:0] address_mux_sel,
+	input logic [1:0] pwdatamux_sel,
 	input logic [15:0] address,
 	input logic [127:0] pmem_wdata,
 	input logic [127:0] physical_rdata,
@@ -225,7 +227,7 @@ LRU LRU_0
 	.clk,
 	.LRU_write(LRU_write0),
 	.index,
-	.hit(hit0),
+	.hit(reset0),
 	.LRU_out(LRU_out0)
 );
 
@@ -234,7 +236,7 @@ LRU LRU_1
 	.clk,
 	.LRU_write(LRU_write1),
 	.index,
-	.hit(hit1),
+	.hit(reset1),
 	.LRU_out(LRU_out1)
 );
 
@@ -244,7 +246,7 @@ LRU LRU_2
 	.clk,
 	.LRU_write(LRU_write2),
 	.index,
-	.hit(hit2),
+	.hit(reset2),
 	.LRU_out(LRU_out2)
 );
 
@@ -253,7 +255,7 @@ LRU LRU_3
 	.clk,
 	.LRU_write(LRU_write3),
 	.index,
-	.hit(hit3),
+	.hit(reset3),
 	.LRU_out(LRU_out3)
 );
 
