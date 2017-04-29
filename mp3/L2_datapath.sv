@@ -42,6 +42,11 @@ assign hit2 = cout2 & valid_out2;
 assign hit3 = cout3 & valid_out3;
 assign hit = hit0|hit1|hit2|hit3;
 logic [1:0] rdatamux_sel;
+logic [6:0] tag_out0in, tag_out1in, tag_out2in, tag_out3in;
+logic valid_out0in, valid_out1in, valid_out2in, valid_out3in;
+logic dirty_out0in, dirty_out1in, dirty_out2in, dirty_out3in;
+logic [1:0] LRU_out0in, LRU_out1in, LRU_out2in, LRU_out3in;
+logic [127:0] data_out0in, data_out1in, data_out2in, data_out3in;
 
 mux2#(128) data_write_mux
 (
@@ -85,7 +90,7 @@ dataarray2 Dataarray0
 	.data_write(data_write0),
 	.index(index),
 	.data_wdata,
-	.data_out(data_out0)
+	.data_out(data_out0)//in)
 );
 
 dataarray2 Dataarray1
@@ -94,7 +99,7 @@ dataarray2 Dataarray1
 	.data_write(data_write1),
 	.index(index),
 	.data_wdata,
-	.data_out(data_out1)
+	.data_out(data_out1)//in)
 );
 
 dataarray2 Dataarray2
@@ -103,7 +108,7 @@ dataarray2 Dataarray2
 	.data_write(data_write2),
 	.index(index),
 	.data_wdata,
-	.data_out(data_out2)
+	.data_out(data_out2)//in)
 );
 
 dataarray2 Dataarray3
@@ -112,8 +117,41 @@ dataarray2 Dataarray3
 	.data_write(data_write3),
 	.index(index),
 	.data_wdata,
-	.data_out(data_out3)
+	.data_out(data_out3)//in)
 );
+
+
+//register #(128) Dataarray0_reg
+//(
+//	.in(data_out0in),
+//	.clk,
+//	.load(1'b1),
+//	.out(data_out0)
+//);
+//
+//register #(128) Dataarray1_reg
+//(
+//	.in(data_out1in),
+//	.clk,
+//	.load(1'b1),
+//	.out(data_out1)
+//);
+//
+//register #(128) Dataarray2_reg
+//(
+//	.in(data_out2in),
+//	.clk,
+//	.load(1'b1),
+//	.out(data_out2)
+//);
+//
+//register #(128) Dataarray3_reg
+//(
+//	.in(data_out3in),
+//	.clk,
+//	.load(1'b1),
+//	.out(data_out3)
+//);
 
 dataarray2 #(7) tag0
 (
@@ -121,7 +159,7 @@ dataarray2 #(7) tag0
 	.data_write(tag_write0),
 	.index(index),
 	.data_wdata(tag),
-	.data_out(tag_out0)
+	.data_out(tag_out0)//in)
 );
 
 dataarray2 #(7) tag1
@@ -130,7 +168,7 @@ dataarray2 #(7) tag1
 	.data_write(tag_write1),
 	.index(index),
 	.data_wdata(tag),
-	.data_out(tag_out1)
+	.data_out(tag_out1)//in)
 );
 
 dataarray2 #(7) tag2
@@ -139,7 +177,7 @@ dataarray2 #(7) tag2
 	.data_write(tag_write2),
 	.index(index),
 	.data_wdata(tag),
-	.data_out(tag_out2)
+	.data_out(tag_out2)//in)
 );
 
 dataarray2 #(7) tag3
@@ -148,8 +186,40 @@ dataarray2 #(7) tag3
 	.data_write(tag_write3),
 	.index(index),
 	.data_wdata(tag),
-	.data_out(tag_out3)
+	.data_out(tag_out3)//in)
 );
+
+//register #(7) tag0_reg
+//(
+//	.in(tag_out0in),
+//	.load(1'b1),
+//	.out(tag_out0),
+//	.clk
+//);
+//
+//register #(7) tag1_reg
+//(
+//	.in(tag_out1in),
+//	.load(1'b1),
+//	.out(tag_out1),
+//	.clk
+//);
+//
+//register #(7) tag2_reg
+//(
+//	.in(tag_out2in),
+//	.load(1'b1),
+//	.out(tag_out2),
+//	.clk
+//);
+//
+//register #(7) tag3_reg
+//(
+//	.in(tag_out3in),
+//	.load(1'b1),
+//	.out(tag_out3),
+//	.clk
+//);
 
 dataarray2 #(1) valid0
 (
@@ -157,7 +227,7 @@ dataarray2 #(1) valid0
 	.data_write(valid_write0),
 	.index,
 	.data_wdata(physical_resp),
-	.data_out(valid_out0)
+	.data_out(valid_out0)//in)
 );
 
 dataarray2 #(1) valid1
@@ -166,7 +236,7 @@ dataarray2 #(1) valid1
 	.data_write(valid_write1),
 	.index,
 	.data_wdata(physical_resp),
-	.data_out(valid_out1)
+	.data_out(valid_out1)//in)
 );
 
 dataarray2 #(1) valid2
@@ -175,7 +245,7 @@ dataarray2 #(1) valid2
 	.data_write(valid_write2),
 	.index,
 	.data_wdata(physical_resp),
-	.data_out(valid_out2)
+	.data_out(valid_out2)//in)
 );
 
 dataarray2 #(1) valid3
@@ -184,8 +254,40 @@ dataarray2 #(1) valid3
 	.data_write(valid_write3),
 	.index,
 	.data_wdata(physical_resp),
-	.data_out(valid_out3)
+	.data_out(valid_out3)//in)
 );
+
+//register #(7) tag0_reg
+//(
+//	.in(tag_out0in),
+//	.load(1'b1),
+//	.out(tag_out0),
+//	.clk
+//);
+//
+//register #(7) tag1_reg
+//(
+//	.in(tag_out1in),
+//	.load(1'b1),
+//	.out(tag_out1),
+//	.clk
+//);
+//
+//register #(7) tag2_reg
+//(
+//	.in(tag_out2in),
+//	.load(1'b1),
+//	.out(tag_out2),
+//	.clk
+//);
+//
+//register #(7) tag3_reg
+//(
+//	.in(tag_out3in),
+//	.load(1'b1),
+//	.out(tag_out3),
+//	.clk
+//);
 
 dataarray2 #(1) dirty0
 (
@@ -193,7 +295,7 @@ dataarray2 #(1) dirty0
 	.data_write(dirty_write0),
 	.index,
 	.data_wdata(dirty_write_val),
-	.data_out(dirty_out0)
+	.data_out(dirty_out0)//in)
 );
 
 dataarray2 #(1) dirty1
@@ -202,7 +304,7 @@ dataarray2 #(1) dirty1
 	.data_write(dirty_write1),
 	.index,
 	.data_wdata(dirty_write_val),
-	.data_out(dirty_out1)
+	.data_out(dirty_out1)//in)
 );
 
 dataarray2 #(1) dirty2
@@ -211,7 +313,7 @@ dataarray2 #(1) dirty2
 	.data_write(dirty_write2),
 	.index,
 	.data_wdata(dirty_write_val),
-	.data_out(dirty_out2)
+	.data_out(dirty_out2)//in)
 );
 
 dataarray2 #(1) dirty3
@@ -220,8 +322,41 @@ dataarray2 #(1) dirty3
 	.data_write(dirty_write3),
 	.index,
 	.data_wdata(dirty_write_val),
-	.data_out(dirty_out3)
+	.data_out(dirty_out3)//in)
 );
+
+//register #(1) dirty_reg0
+//(
+//	.clk,
+//	.in(dirty_out0in),
+//	.load(1'b1),
+//	.out(dirty_out0)
+//);
+//
+//register #(1) dirty_reg1
+//(
+//	.clk,
+//	.in(dirty_out1in),
+//	.load(1'b1),
+//	.out(dirty_out1)
+//);
+//
+//register #(1) dirty_reg2
+//(
+//	.clk,
+//	.in(dirty_out2in),
+//	.load(1'b1),
+//	.out(dirty_out2)
+//);
+//
+//register #(1) dirty_reg3
+//(
+//	.clk,
+//	.in(dirty_out3in),
+//	.load(1'b1),
+//	.out(dirty_out3)
+//);
+
 
 LRU LRU_0
 (
@@ -229,7 +364,7 @@ LRU LRU_0
 	.LRU_write(LRU_write0),
 	.index,
 	.hit(reset0),
-	.LRU_out(LRU_out0)
+	.LRU_out(LRU_out0)//in)
 );
 
 LRU LRU_1
@@ -238,7 +373,7 @@ LRU LRU_1
 	.LRU_write(LRU_write1),
 	.index,
 	.hit(reset1),
-	.LRU_out(LRU_out1)
+	.LRU_out(LRU_out1)//in)
 );
 
 
@@ -248,7 +383,7 @@ LRU LRU_2
 	.LRU_write(LRU_write2),
 	.index,
 	.hit(reset2),
-	.LRU_out(LRU_out2)
+	.LRU_out(LRU_out2)//in)
 );
 
 LRU LRU_3
@@ -257,8 +392,40 @@ LRU LRU_3
 	.LRU_write(LRU_write3),
 	.index,
 	.hit(reset3),
-	.LRU_out(LRU_out3)
+	.LRU_out(LRU_out3)//in)
 );
+
+//register #(2) LRU_0reg
+//(
+//	.clk,
+//	.in(LRU_out0in),
+//	.load(1'b1),
+//	.out(LRU_out0)
+//);
+//
+//register #(2) LRU_1reg
+//(
+//	.clk,
+//	.in(LRU_out1in),
+//	.load(1'b1),
+//	.out(LRU_out1)
+//);
+//
+//register #(2) LRU_2reg
+//(
+//	.clk,
+//	.in(LRU_out2in),
+//	.load(1'b1),
+//	.out(LRU_out2)
+//);
+//
+//register #(2) LRU_3reg
+//(
+//	.clk,
+//	.in(LRU_out3in),
+//	.load(1'b1),
+//	.out(LRU_out3)
+//);
 
 Compare #(7) Compare0
 (
