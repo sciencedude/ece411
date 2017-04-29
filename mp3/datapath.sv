@@ -113,6 +113,7 @@ logic [1:0] bht_out;
 logic [15:0] IO_address;
 logic [15:0] memstage_readmuxout;
 logic IOornot;
+logic [127:0] l2_pmem_wdata;
 //intialize all the stages in pipeline
 fetch F(.*, .mem_wdata(new_pc), .address(address_i), .intr(fetchflush_out));
 decode D(.*,.if_id(if_id_mux));
@@ -383,6 +384,14 @@ mux2 #(128) wdata_mux
 	.f(pmem_wdata)
 );
 
+register #(.width(128)) wdata_reg
+(
+	.clk,
+	.load(load_reg),
+	.in(pmem_wdata),
+	.out(l2_pmem_wdata)
+);
+
 cache_arbiter CA
 (
 	.clk,
@@ -394,8 +403,8 @@ cache_arbiter CA
 	.pmem_resp,
 	.pmem_resp_i,
 	.pmem_resp_d,
-	.pmem_read(pmem_read_in),
-	.pmem_write(pmem_write_in),
+	.pmem_read,//(pmem_read_in),
+	.pmem_write,//(pmem_write_in),
 	.I_D_out,
 	.load_reg,
 	.found(found)
@@ -417,7 +426,7 @@ register #(16) address_reg
 	.out(pmem_address)
 );
 
-register #(1) pmem_readreg
+/*register #(1) pmem_readreg
 (
 	.clk,
 	.load(1'b1),
@@ -431,11 +440,12 @@ register #(1) pmem_writereg
 	.load(1'b1),
 	.in(pmem_write_in),
 	.out(pmem_write)
-);
+);*/
 
 L2 L2_cache
 (
 	.*,
+	.pmem_wdata(l2_pmem_wdata),
 	.physical_read(ewb_read),
 	.physical_resp(ewb_resp),
 	.physical_write(ewb_write),
@@ -445,6 +455,7 @@ L2 L2_cache
 	.actual_hits(hits_l2),
 	.miss(miss_l2)
 );
+
 
 EWB EWB_buffer
 (

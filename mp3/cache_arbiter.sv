@@ -21,7 +21,7 @@ module cache_arbiter
 
 enum int unsigned {unlock, lock_i, preparelock_d, lock_d} state, next_state;
 
-assign load_reg = pmem_read_d | pmem_read_i;
+assign load_reg = pmem_read_d | pmem_read_i | pmem_write_d | pmem_write_i;
 
 always_ff@(posedge clk)
 begin
