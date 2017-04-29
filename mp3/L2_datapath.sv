@@ -9,7 +9,7 @@ module L2_datapath
 					valid_write0, valid_write1, valid_write2, valid_write3,
 					dirty_write0, dirty_write1, dirty_write2, dirty_write3,
 					LRU_write0, LRU_write1, LRU_write2, LRU_write3,
-	input logic [2:0] address_mux_sel,
+	input logic [2:0] address_mux_sel, pwdatamux_sel,
 	input logic [15:0] address,
 	input logic [127:0] pmem_wdata,
 	input logic [127:0] physical_rdata,
@@ -20,7 +20,7 @@ module L2_datapath
 	output logic [1:0] LRU_out0, LRU_out1, LRU_out2, LRU_out3,
 	output logic hit,
 	output logic [15:0] physical_address,
-	output logic [127:0] physical_wdata
+	output logic [127:0] physical_wdata, pmem_rdata
 );
 
 logic [127:0] data_wdata;
@@ -51,6 +51,16 @@ mux2#(128) data_write_mux
 mux4#(128) rdatamux
 (
 	.sel(rdatamux_sel),
+	.a(data_out0),
+	.b(data_out1),
+	.c(data_out2),
+	.d(data_out3),
+	.f(pmem_rdata)
+);
+
+mux4#(128) physical_wdatamux
+(
+	.sel(pwdatamux_sel),
 	.a(data_out0),
 	.b(data_out1),
 	.c(data_out2),
@@ -278,11 +288,11 @@ Compare #(7) Compare3
 mux8 #(16)	address_mux
 (
 	.sel(address_mux_sel),
-	.e(address),
 	.a({tag_out0,index,4'h0}),
 	.b({tag_out1,index,4'h0}),
 	.c({tag_out2,index,4'h0}),
 	.d({tag_out3,index,4'h0}),
+	.e(address),
 	.f(16'h0),
 	.g(16'h0),
 	.h(16'h0),

@@ -19,9 +19,9 @@ end
 always_ff@(posedge clk)
 begin
 	if(hit)
-	data[index] <= 2'b00;
+		data[index] <= 2'b00;
 	else if(LRU_write && LRU_out < 3)
-	data[index] <= LRU_out+2'b01;
+		data[index] <= LRU_out+2'b01;
 end
 
 always_comb

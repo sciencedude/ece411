@@ -65,7 +65,8 @@ poniter ptr
 	.rwmux_sel,
 	.read,
 	.stin,
-	.write
+	.write,
+	.mem_adderres(address)
 );
 
 register ptraddress

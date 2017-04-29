@@ -18,7 +18,7 @@ module L2_control
 					 physical_write,
 					 pmem_resp,
 	
-	output logic [2:0] address_mux_sel,
+	output logic [2:0] address_mux_sel, pwdatamux_sel,
 	output logic [15:0] miss, actual_hits,
 					 
 	output logic dirty_write_val, wdatamux_sel,
@@ -32,10 +32,6 @@ module L2_control
 
 enum int unsigned {read_write, read_from_mem, write_to_mem} state, next_state;
 
-logic [1:0] add;
-
-magic MA(.hit0(dirty_write0), .hit1(dirty_write1), .hit2(dirty_write2), .hit3(dirty_write3), .rdatamux_sel(add));
-
 always_ff@(posedge clk)
 begin
 	state <= next_state;
@@ -47,29 +43,21 @@ begin
 	case(state)
 		read_write: begin
 							if(~hit & (pmem_read | pmem_write))
-							next_state = read_from_mem;
-							else if((dirty_out0 && LRU_out0 == 3) | (dirty_out1 && LRU_out1 == 3) | (dirty_out2 && LRU_out2 == 3) | (dirty_out3 && LRU_out3 == 3))
-								begin
-									if(isEmpty)
+							begin 
+								if((valid_out0&&valid_out1&&valid_out2&&valid_out3)&&((dirty_out0 && LRU_out0 == 3) | (dirty_out1 && LRU_out1 == 3) | (dirty_out2 && LRU_out2 == 3) | (dirty_out3 && LRU_out3 == 3)))
 										next_state = write_to_mem;
-									else
-										next_state = read_from_mem;
-								end
-//							if()
+								else
+									next_state = read_from_mem;
+							end
 						end
 		read_from_mem : begin
-								if((dirty_out0 && LRU_out0 == 3) | (dirty_out1 && LRU_out1 == 3) | (dirty_out2 && LRU_out2 == 3) | (dirty_out3 && LRU_out3 == 3))
-								begin
-									if(isEmpty)
-										next_state = write_to_mem;
-									else
-										next_state = read_from_mem;
-								end
-								else if(physical_resp)
-									next_state = read_write;
+							if(physical_resp)
+								next_state = read_write;
 							end
-		write_to_mem : if(physical_resp)
+		write_to_mem : begin 
+							if(physical_resp)
 								next_state = read_from_mem;
+						end
 	endcase
 end
 logic [15:0] hits;
@@ -121,6 +109,7 @@ begin
 	l2_evict = 1'b0;
 	load_ewb = 1'b0;
 	address_mux_sel = 3'h4;
+	pwdatamux_sel = 2'b00;
 	
 	
 	case(state)
@@ -138,11 +127,16 @@ begin
 							dirty_write3 = hit3;
 							dirty_write_val = 1'b1;
 						end
-						if(~(LRU_out0 == 3 || LRU_out1 == 3 || LRU_out2 == 3 || LRU_out3 == 3))	begin
-						LRU_write0 = 1'b1;
-						LRU_write1 = 1'b1;
-						LRU_write2 = 1'b1;
-						LRU_write3 = 1'b1;
+						if(hit &(pmem_read|pmem_write))	
+						begin
+							if(((LRU_out0<=LRU_out1)&&hit1)||((LRU_out0<=LRU_out2)&&hit2)||((LRU_out0<=LRU_out3)&&hit3))
+								LRU_write0 = 1'b1;
+							if(((LRU_out1<=LRU_out0)&&hit0)||((LRU_out1<=LRU_out2)&&hit2)||((LRU_out1<=LRU_out3)&&hit3))
+								LRU_write1 = 1'b1;
+							if(((LRU_out2<=LRU_out1)&&hit1)||((LRU_out2<=LRU_out0)&&hit0)||((LRU_out2<=LRU_out3)&&hit3))
+								LRU_write2 = 1'b1;
+							if(((LRU_out3<=LRU_out1)&&hit1)||((LRU_out3<=LRU_out2)&&hit2)||((LRU_out3<=LRU_out0)&&hit0))
+								LRU_write3 = 1'b1;
 						end
 					end
 	read_from_mem : begin
@@ -150,19 +144,19 @@ begin
 							begin
 								physical_read = 1'b1;
 								wdatamux_sel = 1'b1;
-								if((LRU_out0 && 3) | ~valid_out0)	begin
+								if((LRU_out0 == 3) | ~valid_out0)	begin
 									data_write0 = 1'b1;
 									tag_write0 = 1'b1;
 								end
-								else if ((LRU_out1 && 3) | ~valid_out1)	begin
+								else if ((LRU_out1 == 3) | ~valid_out1)	begin
 									data_write1 = 1'b1;
 									tag_write1 = 1'b1;
 								end
-								else if ((LRU_out2 && 3) | ~valid_out2)	begin
+								else if ((LRU_out2 == 3) | ~valid_out2)	begin
 									data_write2 = 1'b1;
 									tag_write2 = 1'b1;
 								end
-								else begin
+								else if((LRU_out3 == 3) | ~valid_out3)begin
 									data_write3 = 1'b1;
 									tag_write3 = 1'b1;
 								end
@@ -183,13 +177,22 @@ begin
 							if(LRU_out0 == 3)
 								dirty_write0 = 1'b1;
 							else if(LRU_out1 == 3)
+							begin
 								dirty_write1 = 1'b1;
+								pwdatamux_sel = 2'b01;
+							end
 							else if(LRU_out2 == 3)
+							begin
 								dirty_write2 = 1'b1;
+								pwdatamux_sel = 2'b10;
+							end
 							else if(LRU_out3 == 3)
+							begin
 								dirty_write3 = 1'b1;
+								pwdatamux_sel = 2'b11;
+							end
 							dirty_write_val = 1'b0;
-							address_mux_sel = {1'b0,add};
+							address_mux_sel = {1'b0,pwdatamux_sel};
 						end
 	endcase
 end
