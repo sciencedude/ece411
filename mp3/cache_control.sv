@@ -1,168 +1,144 @@
 module cache_control
 (
-input logic clk,
-input logic [15:0] mem_address,
-input logic mem_read,
-input logic mem_write,
-input logic dirty,
-input logic pmem_resp,
-input logic found,
-input logic cout_1, cout_2,
-input logic reset_hits, reset_miss,
-
-output logic mem_resp,
-output logic [8:0] tag,
-output logic [2:0] set,
-output logic [2:0] offset,
-output logic LRU_write,
-output logic valid_write,
-output logic data_write,
-output logic tag_write,
-output logic datamux_sel,
-output logic MSBmux_sel,
-output logic LSBmux_sel,
-output logic dirty_write_val,
-output logic dirty_write,
-output logic pmem_read,
-output logic pmem_write,
-output logic write_mux_sel,
-output logic [15:0] actual_hits, miss,
-output logic addrmux_sel
+	input clk,
+	input logic mem_read,
+	input logic mem_write,
+	output logic mem_resp,
+	output logic pmem_read,
+	output logic pmem_write,
+	input logic pmem_resp,
+	input logic hit,
+	input logic hit_out,
+	input logic dirty1_out,
+	input logic dirty2_out,
+	input logic vaild1_out,
+	input logic vaild2_out,
+	output logic set1_load,
+	output logic set2_load,
+	output logic tag1_load,
+	output logic tag2_load,
+	output logic dirty1_in,
+	output logic dirty2_in,
+	output logic dirty1_load,
+	output logic dirty2_load,
+	output logic vaild1_in,
+	output logic vaild2_in,
+	output logic vaild1_load,
+	output logic vaild2_load,	
+	input logic lru_out,
+	output logic lru_load,
+	output logic pmem_address_sel,
+	output logic setin_mux_sel
 );
 
 
-assign tag = mem_address[15:7];
-assign set = mem_address[6:4];
-assign offset = mem_address[3:1];
-
-initial
-begin
-miss = 16'h0;
-actual_hits = 16'h0;
-end
 
 
 enum int unsigned {
-read_write,
-read_from_mem,
-write_to_mem
+hread,
+miss,
+getd
 } state, next_state;
 
 
-always_ff@(posedge clk)
-begin
-	state = next_state;
-end
-
-logic miss_logic;
-assign miss_logic = pmem_resp & state == read_from_mem;
-always_ff@(posedge clk or posedge reset_miss or posedge reset_hits)
-begin
-	if(reset_miss)
-	miss <= 0;
-	else if(reset_hits)
-	actual_hits <= 0;
-	else if(miss_logic)
-	miss<= miss+1;
-	else if(mem_resp)
-	actual_hits+=1;
+always_comb
+begin : state_actions
+	set1_load	= 1'b0;
+	set2_load	= 1'b0;
+	tag1_load	= 1'b0;
+	tag2_load	= 1'b0;
+	dirty1_in	= 1'b0;
+	dirty2_in	= 1'b0;
+	dirty1_load	= 1'b0;
+	dirty2_load	= 1'b0;
+	vaild1_in	= 1'b0;
+	vaild2_in	= 1'b0;
+	vaild1_load	= 1'b0;
+	vaild2_load	= 1'b0;
+	mem_resp		= 1'b0;
+	pmem_read	= 1'b0;
+	pmem_write	= 1'b0;
+	lru_load		= 1'b0;
+	pmem_address_sel = 1'b1;
+	setin_mux_sel	= 1'b0;
+	case(state)
+	hread:begin
+		if(hit == 1 && mem_read == 1 )
+		begin
+			mem_resp = 1'b1;
+			lru_load = 1'b1;
+		end
+		if(hit == 1 && mem_write == 1)
+		begin
+			mem_resp = 1'b1;
+			setin_mux_sel = 1;
+			if(hit_out == 0)
+			begin
+				set1_load = 1;
+				dirty1_load = 1;
+				dirty1_in = 1;
+			end
+			if(hit_out == 1)
+			begin
+				set2_load = 1;
+				dirty2_load = 1;
+				dirty2_in = 1;
+			end
+		end
+	end
+	miss:begin
+		if(lru_out == 0 && dirty1_out == 1 && vaild1_out == 1)pmem_write = 1'b1;
+		if(lru_out == 1 && dirty2_out == 1 && vaild2_out == 1)pmem_write = 1'b1;
+		pmem_address_sel = 1'b0;
+	end
+	getd:begin
+		pmem_read = 1'b1;
+		if(lru_out == 0) 
+		begin
+			set1_load = 1;
+			vaild1_load = 1;
+			vaild1_in = 1;
+			tag1_load = 1;
+			dirty1_load = 1;
+			dirty1_in = 0;
+		end
+		else 
+		begin
+			set2_load = 1;
+			vaild2_load = 1;
+			vaild2_in = 1;
+			tag2_load = 1;
+			dirty2_load = 1;
+			dirty2_in = 0;
+		end
+	end
+	default: /* Do nothing */;
+	endcase
 end
 
 always_comb
-begin : nextstatetable
+begin : next_state_logic
 
 	next_state = state;
-	
 	case(state)
-	
-		read_write : begin
-			if(~found & (mem_read|mem_write))
-			next_state = read_from_mem;
-		end
-		
-		read_from_mem: begin
-			if((~cout_1 | ~cout_2) & dirty)
-			next_state = write_to_mem;
-			else if(pmem_resp && (mem_read || mem_write))
-			next_state = read_write;
-		end
-		
-		write_to_mem: begin
-			if(pmem_resp)
-			next_state = read_from_mem;
-		end
-	
+	hread:begin
+		if(hit == 0 &&(mem_read == 1 || mem_write == 1))next_state = miss;
+	end
+	miss:begin
+		if(pmem_write == 0) next_state = getd;
+		else if(pmem_resp == 1) next_state = getd;
+	end
+	getd:begin
+		if(pmem_resp == 1)next_state = hread;
+	end
+	default: /* Do nothing */;
 	endcase
-	
+end
+
+always_ff @(posedge clk)
+begin: next_state_assignment
+    state <= next_state;
 end
 
 
-
-
-always_comb
-begin
-	LRU_write = 1'b0;
-	valid_write = 1'b0;
-	data_write = 1'b0;
-	tag_write = 1'b0;
-	datamux_sel = 1'b0;
-	MSBmux_sel = 1'b0;
-	LSBmux_sel = 1'b0;
-	dirty_write_val = 1'b0;
-	dirty_write = 1'b0;
-	pmem_read = 1'b0;
-	pmem_write = 1'b0;
-	addrmux_sel = 1'b0;
-	mem_resp = 1'b0;
-	write_mux_sel = 1'b0;
-	
-	case(state)
-	
-	read_write: begin
-			if(mem_read)	begin
-			LRU_write = 1;
-			mem_resp = found;
-			end
-			else if((cout_1 | cout_2) & mem_write)	begin
-					data_write = 1'b1;
-					dirty_write = 1'b1;
-					dirty_write_val = 1'b1;
-					LRU_write = 1'b1;
-					mem_resp = found;
-					write_mux_sel = 1'b1;
-				end
-			
-			end
-				
-	read_from_mem: begin
-							if((~cout_1 | ~cout_2) & dirty)	begin
-							tag_write = 1'b0;
-							end
-							else begin
-							tag_write = 1'b1;
-							data_write = 1'b1;
-							valid_write = 1'b1;
-							MSBmux_sel = 1'b1;
-							LSBmux_sel = 1'b1;
-							pmem_read = 1'b1;
-							datamux_sel = 1'b1;
-							end
-						end
-						
-	write_to_mem:	begin
-							pmem_write = 1'b1;
-							dirty_write = 1'b1;
-							dirty_write_val = 1'b0;
-							addrmux_sel = 1'b1;
-						end
-						
-	endcase
-
-	
-end
-
-
-
-endmodule 
-
-
+endmodule : cache_control

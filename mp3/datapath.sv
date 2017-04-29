@@ -286,12 +286,12 @@ cache I_cache
 	.pmem_read(pmem_readi),
 	.pmem_write(pmem_writei),
 	.pmem_wdata(pmem_wdatai),
-	.pmem_address(pmem_addressi),
-	.actual_hits(hits_i),
-	.miss(miss_i),
-	.reset_hits(reset_ihits),
-	.reset_miss(reset_imiss),
-	.found(found_i)
+	.pmem_address(pmem_addressi)
+	//.actual_hits(hits_i),
+	//.miss(miss_i),
+	//.reset_hits(reset_ihits),
+	//.reset_miss(reset_imiss),
+	//.found(found_i)
 );
 
 
@@ -310,12 +310,12 @@ cache D_cache
 	.pmem_read(pmem_readd),
 	.pmem_write(pmem_writed),
 	.pmem_wdata(pmem_wdatad),
-	.pmem_address(pmem_addressd),
-	.actual_hits(hits_d),
-	.miss(miss_d),
-	.reset_hits(reset_dhits),
-	.reset_miss(reset_dmiss),
-	.found(found_d)
+	.pmem_address(pmem_addressd)
+	//.actual_hits(hits_d),
+	//.miss(miss_d),
+	//.reset_hits(reset_dhits),
+	//.reset_miss(reset_dmiss),
+	//.found(found_d)
 );
 
 mux2 #(16) memstage_readmux
@@ -406,8 +406,8 @@ cache_arbiter CA
 	.pmem_read,//(pmem_read_in),
 	.pmem_write,//(pmem_write_in),
 	.I_D_out,
-	.load_reg,
-	.found(found)
+	.load_reg
+	//.found(found)
 );
 
 mux2 #(.width(16)) ewbmux

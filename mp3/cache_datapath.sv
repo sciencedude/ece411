@@ -1,267 +1,234 @@
+import lc3b_types::*;
+
 module cache_datapath
 (
-	input logic clk,
-	input logic [8:0] tag,
-	input logic [2:0] set,
-	input logic [2:0] offset,
-	input logic LRU_write,
-	input logic tag_write,
-	input logic valid_write,
-	input logic data_write,
-	input logic [15:0] mem_wdata,
-	input logic [127:0] pmem_rdata,
-	input logic datamux_sel,
-	input logic MSBmux_sel,
-	input logic LSBmux_sel,
-	input logic [1:0] mem_byte_enable,
-	input logic pmem_resp,
-	input logic dirty_write_val,
-	input logic dirty_write,
-	input logic addrmux_sel,
-	input logic write_mux_sel,
-	
-	output logic found,
-	output logic dirty,
-	output logic [127:0] pmem_wdata,
-	output logic [15:0] mem_rdata,
-	output logic cout_1, cout_2,
-	output logic [15:0] pmem_address
+	input clk,
+	input lc3b_word mem_address,
+	input logic mem_read,
+	input logic mem_write,
+	input lc3b_mem_wmask mem_byte_enable,
+	output logic[127:0] pmem_wdata,
+	input logic[127:0] pmem_rdata,
+	output lc3b_word pmem_address,
+	output logic hit,
+	input lc3b_word mem_wdata,
+	output lc3b_word mem_rdata,
+	input logic dirty1_in,
+	input logic dirty2_in,
+	output logic dirty1_out,
+	output logic dirty2_out,
+	input logic dirty1_load,
+	input logic dirty2_load,
+	input logic vaild1_in,
+	input logic vaild2_in,
+	input logic vaild1_load,
+	input logic vaild2_load,
+	output logic vaild1_out,
+	output logic vaild2_out,
+	input logic set1_load,
+	input logic set2_load,
+	input logic tag1_load,
+	input logic tag2_load,
+	input logic pmem_address_sel,
+	output logic lru_out,
+	input logic lru_load,
+	input logic setin_mux_sel,
+	output logic hit_out
 );
 
-logic LRU_out0, LRU_out1;
-logic valid_out0, valid_out1;
-logic w1,w2;
-logic [8:0] tag_out0, tag_out1, tagmux_out;
-logic [127:0] Copy_out, datamux_out, dataarray_out0, dataarray_out1;
-logic [7:0] MSB_decoder_out, LSB_decoder_out, MSB_muxout, LSB_muxout, MSB_sel, LSB_sel;
+logic [127:0] set1_out;
+logic [127:0] set2_out;
+logic [127:0] set_mux_out;
+logic [127:0] set1in_mux_out;
+logic [127:0] set2in_mux_out;
+logic [127:0] set1in_out;
+logic [127:0] set2in_out;
+logic [127:0] word1_out;
+logic [127:0] word2_out;
+lc3b_word writeback_out;
+logic [8:0]tag1_out;
+logic [8:0]tag2_out;
+logic comp_tag1_out;
+logic comp_tag2_out;
 
-array#(1) LRU_0
+
+//logic [2:0] index;
+//assign index = mem_address[5:3];
+
+array #(.width(128))set1
 (
 	.clk,
-	.address(set),
-	.w_data(~cout_2),
-	.write(found&LRU_write),
-	.r_data(LRU_out0)
+	.address(mem_address[6:4]),
+	.w_data(set1in_mux_out),
+	.r_data(set1_out),
+	.write(set1_load)
 );
 
-array#(9) tag_0
+mux2 #(.width(128))set1in_mux
+(
+	.sel(setin_mux_sel),
+	.a(pmem_rdata),
+	.b(word1_out),
+	.f(set1in_mux_out)
+);
+
+splicer word1
+(
+	.offset(mem_address[3:1]),
+	.a(set1_out),
+	.b(mem_wdata),
+	.byte_enable(mem_byte_enable),
+	.f(word1_out)
+);
+
+array #(.width(128))set2
 (
 	.clk,
-	.address(set),
-	.w_data(tag),
-	.write(!LRU_out0 & tag_write),
-	.r_data(tag_out0)
+	.address(mem_address[6:4]),
+	.w_data(set2in_mux_out),
+	.r_data(set2_out),
+	.write(set2_load)
 );
 
-array#(9) tag_1
+mux2 #(.width(128))set2in_mux
+(
+	.sel(setin_mux_sel),
+	.a(pmem_rdata),
+	.b(word2_out),
+	.f(set2in_mux_out)
+);
+
+splicer word2
+(
+	.offset(mem_address[3:1]),
+	.a(set2_out),
+	.b(mem_wdata),
+	.byte_enable(mem_byte_enable),
+	.f(word2_out)
+);
+
+array #(.width(9))tag1
 (
 	.clk,
-	.address(set),
-	.w_data(tag),
-	.write(LRU_out0 & tag_write),
-	.r_data(tag_out1)
+	.address(mem_address[6:4]),
+	.w_data(mem_address[15:7]),
+	.r_data(tag1_out),
+	.write(tag1_load)
 );
 
-Compare C0
-(
-	.a(tag_out0),
-	.b(tag),
-	.result(cout_1)
-);
-
-Compare C1
-(
-	.a(tag_out1),
-	.b(tag),
-	.result(cout_2)
-);
-
-array#(1) valid_0
+array  #(.width(9))tag2
 (
 	.clk,
-	.address(set),
-	.w_data(pmem_resp),
-	.write(valid_write & !LRU_out0),
-	.r_data(valid_out0)
+	.address(mem_address[6:4]),
+	.w_data(mem_address[15:7]),
+	.r_data(tag2_out),
+	.write(tag2_load)	
 );
 
-
-array#(1) valid_1
+array  #(.width(1))vaild1
 (
 	.clk,
-	.address(set),
-	.w_data(pmem_resp),
-	.write(valid_write & LRU_out0),
-	.r_data(valid_out1)
+	.address(mem_address[6:4]),
+	.w_data(vaild1_in),
+	.r_data(vaild1_out),
+	.write(vaild1_load)
 );
 
-assign found = cout_2 & valid_out1 | cout_1 & valid_out0;
-
-copy Copy
-(
-	.in(mem_wdata),
-	.out(Copy_out)
-);
-
-mux2#(128) data_mux
-(
-	.sel(datamux_sel),
-	.a(Copy_out),
-	.b(pmem_rdata),
-	.f(datamux_out)
-);
-
-decoder MSB_decoder
-(
-	.in(offset),
-	.out(MSB_decoder_out)
-);
-	
-decoder LSB_decoder
-(
-	.in(offset),
-	.out(LSB_decoder_out)
-);
-
-
-always_comb
-begin
-	MSB_sel[0] = MSB_decoder_out[0] & mem_byte_enable[1];
-	MSB_sel[1] = MSB_decoder_out[1] & mem_byte_enable[1];
-	MSB_sel[2] = MSB_decoder_out[2] & mem_byte_enable[1];
-	MSB_sel[3] = MSB_decoder_out[3] & mem_byte_enable[1];
-	MSB_sel[4] = MSB_decoder_out[4] & mem_byte_enable[1];
-	MSB_sel[5] = MSB_decoder_out[5] & mem_byte_enable[1];
-	MSB_sel[6] = MSB_decoder_out[6] & mem_byte_enable[1];
-	MSB_sel[7] = MSB_decoder_out[7] & mem_byte_enable[1];
-	
-	LSB_sel[0] = LSB_decoder_out[0] & mem_byte_enable[0];
-	LSB_sel[1] = LSB_decoder_out[1] & mem_byte_enable[0];
-	LSB_sel[2] = LSB_decoder_out[2] & mem_byte_enable[0];
-	LSB_sel[3] = LSB_decoder_out[3] & mem_byte_enable[0];
-	LSB_sel[4] = LSB_decoder_out[4] & mem_byte_enable[0];
-	LSB_sel[5] = LSB_decoder_out[5] & mem_byte_enable[0];
-	LSB_sel[6] = LSB_decoder_out[6] & mem_byte_enable[0];
-	LSB_sel[7] = LSB_decoder_out[7] & mem_byte_enable[0];
-end
-
-mux2#(8) MSB_mux
-(
-	.sel(MSBmux_sel),
-	.a(MSB_sel),
-	.b(8'hff),
-	.f(MSB_muxout)
-);
-
-mux2#(8) LSB_mux
-(
-	.sel(LSBmux_sel),
-	.a(LSB_sel),
-	.b(8'hff),
-	.f(LSB_muxout)
-);
-
-mux2#(1) wmux
-(
-	.sel(write_mux_sel),
-	.a(data_write & !LRU_out0),
-	.b(cout_1 & data_write & valid_out0),
-	.f(w1)
-);
-mux2#(1) wmux2
-(
-	.sel(write_mux_sel),
-	.a(data_write & LRU_out0),
-	.b(cout_2 & data_write & valid_out1),
-	.f(w2)
-);
-
-dataarray Dataarray_0
+array  #(.width(1))vaild2
 (
 	.clk,
-	.address(set),
-	.w_data(datamux_out),
-	.write(w1),
-	.MSB(MSB_muxout),
-	.LSB(LSB_muxout),
-	.r_data(dataarray_out0)
+	.address(mem_address[6:4]),
+	.w_data(vaild2_in),
+	.r_data(vaild2_out),
+	.write(vaild2_load)	
 );
 
-dataarray Dataarray_1
+array  #(.width(1))dirty1
 (
 	.clk,
-	.address(set),
-	.w_data(datamux_out),
-	.write(w2),//this is making some data write not happend because they aren't the lru at the time we try to write to them look at 60022 ns and 63480 ns to see this happen
-	.MSB(MSB_muxout),
-	.LSB(LSB_muxout),
-	.r_data(dataarray_out1)
+	.address(mem_address[6:4]),
+	.w_data(dirty1_in),
+	.r_data(dirty1_out),
+	.write(dirty1_load)
+);
+
+array  #(.width(1))dirty2
+(
+	.clk,
+	.address(mem_address[6:4]),
+	.w_data(dirty2_in),
+	.r_data(dirty2_out),
+	.write(dirty2_load)
+);
+
+array  #(.width(1))lru
+(
+	.clk,
+	.address(mem_address[6:4]),
+	.write(lru_load),
+	.w_data(~hit_out),
+	.r_data(lru_out)
+);
+
+mux2 #(.width(128))set_mux
+(
+	.sel(hit_out),
+	.a(set1_out),
+	.b(set2_out),
+	.f(set_mux_out)
+);
+
+decodes offset_decode
+(
+	.offset(mem_address[3:1]),
+	.a(set_mux_out),
+	.f(mem_rdata)
+);
+
+comparator comp_tag1
+(
+	.a(tag1_out),
+	.b(mem_address[15:7]),
+	.f(comp_tag1_out)
+);
+comparator comp_tag2
+(
+	.a(tag2_out),
+	.b(mem_address[15:7]),
+	.f(comp_tag2_out)
+);
+
+hit hitdet
+(
+	.a(comp_tag1_out&vaild1_out),
+	.b(comp_tag2_out&vaild2_out),
+	.f(hit_out),
+	.hit
 );
 
 
-mux2#(128) pmem_mux
+mux2#(.width(128)) pmem_wdata_mux
 (
-	.sel(cout_2 & valid_out1),
-	.a(dataarray_out0),
-	.b(dataarray_out1),
+	.sel(lru_out),
+	.a(set1_out),
+	.b(set2_out),
 	.f(pmem_wdata)
 );
 
-mux8 memread_mux
+mux2 writeback_mux
 (
-	.sel(offset),
-	.a(pmem_wdata[15:0]),
-	.b(pmem_wdata[31:16]),
-	.c(pmem_wdata[47:32]),
-	.d(pmem_wdata[63:48]),
-	.e(pmem_wdata[79:64]),
-	.f(pmem_wdata[95:80]),
-	.g(pmem_wdata[111:96]),
-	.h(pmem_wdata[127:112]),
-	.out(mem_rdata)
+	.sel(lru_out),
+	.a({tag1_out,mem_address[6:4],4'b0000}),
+	.b({tag2_out,mem_address[6:4],4'b0000}),
+	.f(writeback_out)
 );
 
-
-array #(1) dirtyarray_0
+mux2 pmem_address_mux
 (
-	.clk,
-	.address(set),
-	.w_data(dirty_write_val),
-	.write((cout_1 & dirty_write) || (dirty_write & ~LRU_out0)),
-	.r_data(dirty_1)
-);
-
-array #(1) dirtyarray_1
-(
-	.clk,
-	.address(set),
-	.w_data(dirty_write_val),
-	.write((cout_2 & dirty_write) || (dirty_write & LRU_out0)),
-	.r_data(dirty_2)
-);
-
-mux2 #(9) tagmux
-(
-	.sel(cout_2),
-	.a(tag_out0),
-	.b(tag_out1),
-	.f(tagmux_out)
-);
-
-
-mux2 #(16) addrmux
-(
-	.sel(addrmux_sel),
-	.a({tag ,set,offset, 1'b0}),
-	.b({tagmux_out, set, offset, 1'b0}),
+	.sel(pmem_address_sel),
+	.a(writeback_out),	
+	.b({mem_address[15:4],4'b0000}),
 	.f(pmem_address)
 );
 
-mux2 #(1) dirtymux
-(
-	.sel(LRU_out0),
-	.a(dirty_1),
-	.b(dirty_2),
-	.f(dirty)
-);
-endmodule
+endmodule : cache_datapath
