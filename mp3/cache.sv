@@ -15,7 +15,10 @@ module cache
 	output logic[127:0] pmem_wdata,
 	input logic[127:0] pmem_rdata,
 	input lc3b_word mem_address,
-	output lc3b_word pmem_address
+	output lc3b_word pmem_address,
+	output lc3b_word actual_hits,
+	output lc3b_word miss,
+	input logic reset_hits,reset_miss
 
 );
 	logic dirty1_in;
@@ -71,7 +74,11 @@ cache_control cah_controler
 	.lru_load,
 	.pmem_address_sel,
 	.setin_mux_sel,
-	.hit_out
+	.hit_out,
+	.hits(actual_hits),
+	.miss,
+	.reset_hits,
+	.reset_miss
 );
 
 cache_datapath cah_dut

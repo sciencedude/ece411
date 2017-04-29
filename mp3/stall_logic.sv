@@ -23,7 +23,7 @@ always_comb
 begin
 	stall_count_in = stall_count_out;
 	
-	if((mem_resp_i == 1 || got_intr_out == 1)&&(((mem_resp_d == 1 || got_data_out == 1)&& mem_intr == 1)||mem_intr == 0||mem_adderres >= 16'hfff0)&&((isI == 1 && state == 1)||isI == 0))
+	if((mem_resp_i == 1 || got_intr_out == 1)&&(((mem_resp_d == 1 || got_data_out == 1)&& mem_intr == 1)||mem_intr == 0||mem_adderres >= 16'hfff0)&&((isI == 1 && state == 1)||isI == 0|| got_data_out == 1))
 		stall = 1;
 	else 
 		stall = 0;

@@ -28,17 +28,39 @@ module cache_control
 	input logic lru_out,
 	output logic lru_load,
 	output logic pmem_address_sel,
-	output logic setin_mux_sel
+	output logic setin_mux_sel,
+	output logic [15:0] hits,miss,
+	input logic reset_hits,reset_miss
 );
-
 
 
 
 enum int unsigned {
 hread,
-miss,
+miss_s,
 getd
 } state, next_state;
+
+
+initial
+ begin
+miss = 16'h0;
+hits = 16'h0;
+end
+always_ff @(posedge clk or posedge reset_miss or posedge reset_hits)
+begin
+	if(reset_hits)
+	hits <= 0;
+	else if(reset_miss)
+	miss <= 0;
+	else if(pmem_resp && state ==  getd)
+	miss+=1;
+	else if(hit == 1 && (mem_read == 1 || mem_write == 1))
+	hits+=1;
+end
+
+
+
 
 
 always_comb
@@ -86,7 +108,7 @@ begin : state_actions
 			end
 		end
 	end
-	miss:begin
+	miss_s:begin
 		if(lru_out == 0 && dirty1_out == 1 && vaild1_out == 1)pmem_write = 1'b1;
 		if(lru_out == 1 && dirty2_out == 1 && vaild2_out == 1)pmem_write = 1'b1;
 		pmem_address_sel = 1'b0;
@@ -122,9 +144,9 @@ begin : next_state_logic
 	next_state = state;
 	case(state)
 	hread:begin
-		if(hit == 0 &&(mem_read == 1 || mem_write == 1))next_state = miss;
+		if(hit == 0 &&(mem_read == 1 || mem_write == 1))next_state = miss_s;
 	end
-	miss:begin
+	miss_s:begin
 		if(pmem_write == 0) next_state = getd;
 		else if(pmem_resp == 1) next_state = getd;
 	end

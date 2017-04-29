@@ -132,7 +132,7 @@ shiftregister#(3) brhistory
 array #(2) bht
 (
 	.clk,
-	.address(brhistory_out),
+	.address(brhistory_out^if_id.pc_out[15:13]),
 	.w_data(bht_in),
 	.write(brhistory_load),
 	.r_data(bht_out)
@@ -286,11 +286,11 @@ cache I_cache
 	.pmem_read(pmem_readi),
 	.pmem_write(pmem_writei),
 	.pmem_wdata(pmem_wdatai),
-	.pmem_address(pmem_addressi)
-	//.actual_hits(hits_i),
-	//.miss(miss_i),
-	//.reset_hits(reset_ihits),
-	//.reset_miss(reset_imiss),
+	.pmem_address(pmem_addressi),
+	.actual_hits(hits_i),
+	.miss(miss_i),
+	.reset_hits(reset_ihits),
+	.reset_miss(reset_imiss)
 	//.found(found_i)
 );
 
@@ -310,11 +310,11 @@ cache D_cache
 	.pmem_read(pmem_readd),
 	.pmem_write(pmem_writed),
 	.pmem_wdata(pmem_wdatad),
-	.pmem_address(pmem_addressd)
-	//.actual_hits(hits_d),
-	//.miss(miss_d),
-	//.reset_hits(reset_dhits),
-	//.reset_miss(reset_dmiss),
+	.pmem_address(pmem_addressd),
+	.actual_hits(hits_d),
+	.miss(miss_d),
+	.reset_hits(reset_dhits),
+	.reset_miss(reset_dmiss)
 	//.found(found_d)
 );
 

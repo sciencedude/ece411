@@ -62,7 +62,7 @@ begin
 	bht_in = 2'b00;
 	case(bht_out)
 		2'b00:begin
-		if(branch_enable_out == 0)
+		if(branch_enable_out == 1)
 			begin
 				bht_in = 2'b00;
 			end
@@ -72,7 +72,7 @@ begin
 			end
 		end
 		2'b01:begin
-		if(branch_enable_out == 0)
+		if(branch_enable_out == 1)
 			begin
 				bht_in = 2'b00;
 			end
@@ -82,7 +82,7 @@ begin
 			end
 		end
 		2'b10:begin
-		if(branch_enable_out == 0)
+		if(branch_enable_out == 1)
 			begin
 				bht_in = 2'b01;
 			end
@@ -92,7 +92,7 @@ begin
 			end
 		end
 		2'b11:begin
-		if(branch_enable_out == 0)
+		if(branch_enable_out == 1)
 			begin
 				bht_in = 2'b10;
 			end
