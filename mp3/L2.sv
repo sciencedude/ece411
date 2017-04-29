@@ -3,14 +3,13 @@ module L2
 	input logic clk,
 					pmem_read, pmem_write,
 					physical_resp,
-					isEmpty, isReady,
 					reset_l2hits, reset_l2miss,
 	input logic [127:0] physical_rdata,
 							  pmem_wdata,
 	input logic [15:0] pmem_address,
 							  
 	output logic physical_read, physical_write,
-					 pmem_resp, load_ewb, l2_evict,
+					 pmem_resp,
 	output logic [15:0] physical_address,
 	output logic [15:0] miss, actual_hits,	
 	output logic [127:0] physical_wdata, pmem_rdata

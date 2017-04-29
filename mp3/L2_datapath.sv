@@ -11,6 +11,7 @@ module L2_datapath
 					LRU_write0, LRU_write1, LRU_write2, LRU_write3,
 					reset0,reset1,reset2,reset3,
 	input logic [2:0] address_mux_sel,
+
 	input logic [1:0] pwdatamux_sel,
 	input logic [15:0] address,
 	input logic [127:0] pmem_wdata,

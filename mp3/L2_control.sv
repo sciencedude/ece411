@@ -8,7 +8,6 @@ module L2_control
 	input logic valid_out0, valid_out1, valid_out2, valid_out3,
 					dirty_out0, dirty_out1, dirty_out2, dirty_out3,
       			hit0, hit1, hit2, hit3, hit,
-					isEmpty, isReady,
 	
 	input logic reset_l2hits, reset_l2miss,
 					
@@ -17,9 +16,11 @@ module L2_control
 	output logic physical_read,
 					 physical_write,
 					 pmem_resp,
+					 
+	output logic [1:0] pwdatamux_sel,
 	
 	output logic [2:0] address_mux_sel,
-	output logic [1:0] pwdatamux_sel,
+	
 	output logic [15:0] miss, actual_hits,
 					 
 	output logic dirty_write_val, wdatamux_sel,
@@ -108,8 +109,6 @@ begin
 	valid_write2 = 1'b0;
 	valid_write3 = 1'b0;
 	wdatamux_sel = 1'b0;
-	l2_evict = 1'b0;
-	load_ewb = 1'b0;
 	address_mux_sel = 3'h4;
 	pwdatamux_sel = 2'b00;
 	reset0 = 1'b0;
@@ -120,7 +119,7 @@ begin
 	case(state)
 	read_write: begin
 						if(hit & (pmem_read|pmem_write))
-						pmem_resp = 1'b1;
+							pmem_resp = 1'b1;
 						if(pmem_write)	begin
 							data_write0 = hit0;
 							data_write1 = hit1;
@@ -149,40 +148,33 @@ begin
 						end
 					end
 	read_from_mem : begin
-							if(isReady)
-							begin
-								physical_read = 1'b1;
-								wdatamux_sel = 1'b1;
-								if((LRU_out0 == 3) | ~valid_out0)	begin
-									data_write0 = 1'b1;
-									tag_write0 = 1'b1;
-								end
-								else if ((LRU_out1 == 3) | ~valid_out1)	begin
-									data_write1 = 1'b1;
-									tag_write1 = 1'b1;
-								end
-								else if ((LRU_out2 == 3) | ~valid_out2)	begin
-									data_write2 = 1'b1;
-									tag_write2 = 1'b1;
-								end
-								else if((LRU_out3 == 3) | ~valid_out3)begin
-									data_write3 = 1'b1;
-									tag_write3 = 1'b1;
-								end
-								
-								valid_write0 = data_write0;
-								valid_write1 = data_write1;
-								valid_write2 = data_write2;
-								valid_write3 = data_write3;
+							physical_read = 1'b1;
+							wdatamux_sel = 1'b1;
+							if((LRU_out0 == 3) | ~valid_out0)	begin
+								data_write0 = 1'b1;
+								tag_write0 = 1'b1;
+							end
+							else if ((LRU_out1 == 3) | ~valid_out1)	begin
+								data_write1 = 1'b1;
+								tag_write1 = 1'b1;
+							end
+							else if ((LRU_out2 == 3) | ~valid_out2)	begin
+								data_write2 = 1'b1;
+								tag_write2 = 1'b1;
+							end
+							else if((LRU_out3 == 3) | ~valid_out3)begin
+								data_write3 = 1'b1;
+								tag_write3 = 1'b1;
 							end
 							
+							valid_write0 = data_write0;
+							valid_write1 = data_write1;
+							valid_write2 = data_write2;
+							valid_write3 = data_write3;
 						end
 	write_to_mem : begin
 							//if(physical_resp)
-								physical_write = 1'b1;
-							l2_evict = 1'b1;
-							if(isEmpty)
-								load_ewb = 1'b1;
+							physical_write = 1'b1;
 							if(LRU_out0 == 3)
 								dirty_write0 = 1'b1;
 							else if(LRU_out1 == 3)

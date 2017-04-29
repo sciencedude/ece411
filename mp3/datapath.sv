@@ -89,10 +89,9 @@ ID_EX id_ex_mux;
 EX_MEM ex_mem_mux;
 lc3b_word fetchflush_out;
 CONTROL nop_control;
-logic ewb_write;
-logic [127:0] ewb_data;
+logic ewb_write, ewb_read, ewb_resp;
+logic [127:0] ewb_data, ewb_rdata;
 lc3b_word ewb_address_out, ewb_address, l2_address1;
-logic isEmpty, isReady, load_ewb, l2_evict;
 logic pmem_write_in;
 lc3b_word stall_count_in;
 lc3b_word stall_count_out;
@@ -437,8 +436,11 @@ register #(1) pmem_writereg
 L2 L2_cache
 (
 	.*,
+	.physical_read(ewb_read),
+	.physical_resp(ewb_resp),
 	.physical_write(ewb_write),
 	.physical_wdata(ewb_data),
+	.physical_rdata(ewb_rdata),
 	.physical_address(l2_address1),
 	.actual_hits(hits_l2),
 	.miss(miss_l2)
@@ -449,11 +451,13 @@ EWB EWB_buffer
 	.*,
 	.l2_write(ewb_write),
 	.l2_data(ewb_data),
+	.l2_rdata(ewb_rdata),
 	.l2_address(l2_address1),
 	.pmem_resp(physical_resp),
 	.pmem_wdata(physical_wdata),
 	.pmem_write(physical_write),
-	.l2_read(physical_read)
+	.l2_read(ewb_read),
+	.l2_resp(ewb_resp)
 );
 
 always_comb
