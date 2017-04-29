@@ -29,7 +29,6 @@ module L2_control
 					 valid_write0, valid_write1, valid_write2, valid_write3,
 					 dirty_write0, dirty_write1, dirty_write2, dirty_write3,
 					 LRU_write0, LRU_write1, LRU_write2, LRU_write3,
-					 load_ewb, l2_evict,
 					 reset0,reset1,reset2,reset3
 );
 
